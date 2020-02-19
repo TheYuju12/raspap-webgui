@@ -52,7 +52,7 @@ function setupTabs() {
 function loadCurrentSettings(strInterface) {
     //TODO 
     $.post('ajax/networking/get_int_config.php',{interface:strInterface},function(data){
-        /*
+        
         jsonData = JSON.parse(data);
         $.each(jsonData['output'],function(i,v) {
             var int = v['interface'];
