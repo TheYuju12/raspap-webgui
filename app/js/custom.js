@@ -51,42 +51,8 @@ function setupTabs() {
 
 function loadCurrentSettings(strInterface) {
     //TODO 
-    /*
-    if ($fh = fopen('/etc/systemd/network/bridge-br0.network', 'r')) {
-        $dns_ocurrences = 0;
-        $dhcp = false;
-        while (!feof($fh)) {
-            $line = fgets($fh);
-            if (strpos($line, "DHCP") !== false) {
-                $dhcp = true;
-                break;
-            }
-            if (strpos($line, "Address") !== false) {
-                $ip_and_netmask = explode("=", $line)[1];
-                $ip = explode("/", $ip_and_netmask)[0];
-                $netmask = "/" . explode("/", $ip_and_netmask)[1];
-                continue;
-            }
-            if (strpos($line, "Gateway") !== false) {
-                $gw = explode("=", $line)[1];
-                continue;
-            }
-            if (strpos($line, "DNS") !== false) {
-                $dns_ocurrences++;
-                if ($dns_ocurrences == 1) {
-                    $dns1 = explode("=", $line)[1];
-                }
-                elseif ($dns_ocurrences == 2) {
-                    $dns2 = explode("=", $line)[1];
-                }
-                continue;
-            }
-        }
-        fclose($fh);
-        echo renderTemplate("networking", compact("status", "interfaces", "dhcp", "ip", "netmask", "gw", "dns1", "dns2"));
-    }
-    */
     $.post('ajax/networking/get_int_config.php',{interface:strInterface},function(data){
+        /*
         jsonData = JSON.parse(data);
         $.each(jsonData['output'],function(i,v) {
             var int = v['interface'];
@@ -123,6 +89,7 @@ function loadCurrentSettings(strInterface) {
                 }
             });
         });
+        */
     });
 }
 
