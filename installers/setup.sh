@@ -10,12 +10,19 @@
 # Install needed packages #
 ###########################
 
+echo "WELCOME TO THE not-so-DumbAP installer!"
+echo "This routine will set everything up in a few minutes. Please, wait patiently."
+sleep 2
+echo ""
+echo "[INFO] Checking for updates and needed packages..."
+echo ""
+
 apt update
 
 # We're gonna install only those packages that are not already installed and store the names of those packages in a file, 
 # so when the uninstaller is ran it will be able to only remove the packages that were installed by this script.
 
-needed_pkgs=(netplan hostapd git lighttpd php7.1-cgi vnstat)
+needed_pkgs=(netplan.io hostapd git lighttpd php7.1-cgi vnstat)
 declare -a pkgs_to_install
 
 for i in "${needed_pkgs[@]}"
@@ -23,8 +30,12 @@ do
     dpkg -s $i 2>/dev/null | grep -q "ok installed"
     return_code=$(echo $?)
     if [ $return_code -ne 0 ]; then
+        if [ "$1" == "netplan.io" ]; then
+            mkdir /etc/netplan_bak
+            mv /etc/netplan/* > /etc/netplan_bak/
+        fi
         pkgs_to_install+=($i)
-        echo $i >> html/uninstaller/pkgs_to_uninstall
+        echo $i >> pkgs_to_uninstall
     fi
 done
 
@@ -36,9 +47,6 @@ for i in "${pkgs_to_install[@]}"
 do
     apt install $i -y
 done
-
-
-#apt install netplan hostapd git lighttpd php7.1-cgi vnstat -y
 
 ##########################
 # Configure new packages #
@@ -64,6 +72,11 @@ echo ""
 
 git clone https://github.com/TheYuju12/raspap-webgui.git html
 
+# Move the file which contains the software we installed to correct location (if it exists)
+if [ -f pkgs_to_uninstall ]; then
+    mv pkgs_to_uninstall html/uninstaller/pkgs_to_uninstall
+fi
+
 # Replace /var/www/html with our web hierarchy
 rm -rf /var/www/html
 mv html /var/www/
@@ -88,8 +101,9 @@ systemctl enable raspap.service
 
 echo "[INFO] Configuring network..."
 
+# Deny eth0 in /etc/dhcpcd.conf so it does not get any other address (it seems that doing "dhcp4: false" is not good enough and it gets an address with no connection)
+echo "denyinterfaces eth0" >> /etc/dhcpcd.conf
 # Move all network-related config files to where they belong
-#mv /var/www/html/config/dhcpcd.conf /etc/
 mv /var/www/html/config/default_hostapd /etc/default/hostapd
 mv /var/www/html/config/hostapd.conf /etc/hostapd/
 mv /var/www/html/config/network-config.yaml /etc/netplan/
@@ -101,6 +115,6 @@ mv /var/www/html/config/config.php /var/www/html/includes/
 
 # Write this before adding eth0 to bridge because when we do that connection will be lost, and we want the user to know what is happening.
 echo "[INFO] Rebooting..." 
-
-netplan apply
+# netplan is gonna throw an error but it will work so we just redirect error output to /dev/null 
+netplan apply 2> /dev/null
 reboot

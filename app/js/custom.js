@@ -89,7 +89,6 @@ function loadCurrentSettings(strInterface) {
                 }
             });
         });
-        */
     });
 }
 
