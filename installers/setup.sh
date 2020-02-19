@@ -10,7 +10,7 @@
 # Install needed packages #
 ###########################
 
-echo "WELCOME TO THE not-so-DumbAP installer!"
+echo "WELCOME TO THE not-so-DumbAP INSTALLER!"
 echo "This routine will set everything up in a few minutes. Please, wait patiently."
 sleep 2
 echo ""
@@ -39,14 +39,15 @@ do
     fi
 done
 
-echo ""
-echo "[INFO] Installing needed software..."
-echo ""
-
-for i in "${pkgs_to_install[@]}"
-do
-    apt install $i -y
-done
+if [ ${#pkgs_to_install[@]} -ne 0 ]; then
+    echo ""
+    echo "[INFO] Installing needed software..."
+    echo ""
+    for i in "${pkgs_to_install[@]}"
+    do
+        apt install $i -y
+    done
+fi
 
 ##########################
 # Configure new packages #
@@ -76,7 +77,8 @@ git clone https://github.com/TheYuju12/raspap-webgui.git html
 if [ -f pkgs_to_uninstall ]; then
     mv pkgs_to_uninstall html/uninstaller/pkgs_to_uninstall
 fi
-
+# Set executable permissions to uninstaller
+chmod +x html/uninstaller/uninstall.sh
 # Replace /var/www/html with our web hierarchy
 rm -rf /var/www/html
 mv html /var/www/

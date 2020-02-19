@@ -5,15 +5,17 @@
 # Purge the installed packages one by one
 input="pkgs_to_uninstall"
 restore_netplan=true
-while IFS= read -r pkg
-do
-    if [ "$pkg" = "netplan.io" ]; then
-        $restore_netplan=false
-    fi
-    echo "[INFO] Removing $pkg..."
-    echo ""
-    apt purge --auto-remove $pkg
-done < "$input"
+if [ -f input ]; then
+    while IFS= read -r pkg
+    do
+        if [ "$pkg" = "netplan.io" ]; then
+            $restore_netplan=false
+        fi
+        echo "[INFO] Removing $pkg..."
+        echo ""
+        apt purge --auto-remove $pkg
+    done < "$input"
+fi
 # Disable raspap service
 echo "[INFO] Removing raspap service..."
 systemctl disable raspap.service
