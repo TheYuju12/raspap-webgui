@@ -5,7 +5,7 @@
 # Purge the installed packages one by one
 input="pkgs_to_uninstall"
 restore_netplan=true
-if [ -f input ]; then
+if [ ! -f input ]; then
     while IFS= read -r pkg
     do
         if [ "$pkg" = "netplan.io" ]; then
