@@ -75,23 +75,23 @@
                   <h4><?php echo _("Static IP Options") ?></h4>
                   <div class="form-group">
                     <label for="<?php echo $if_quoted ?>-ipaddress"><?php echo _("IP Address") ?></label>
-                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-ipaddress" placeholder="0.0.0.0">
+                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-ipaddress" placeholder="<?php echo $ip; ?>">
                   </div>
                   <div class="form-group">
                     <label for="<?php echo $if_quoted ?>-netmask"><?php echo _("Subnet Mask") ?></label>
-                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-netmask" placeholder="255.255.255.0">
+                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-netmask" placeholder="<?php echo $netmask; ?>">
                   </div>
                   <div class="form-group">
                     <label for="<?php echo $if_quoted ?>-gateway"><?php echo _("Default Gateway") ?></label>
-                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-gateway" placeholder="0.0.0.0">
+                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-gateway" placeholder="<?php echo $gw; ?>">
                   </div>
                   <div class="form-group">
                     <label for="<?php echo $if_quoted ?>-dnssvr"><?php echo _("DNS Server") ?></label>
-                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-dnssvr" placeholder="0.0.0.0">
+                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-dnssvr" placeholder="<?php echo $dns1; ?>">
                   </div>
                   <div class="form-group">
                     <label for="<?php echo $if_quoted ?>-dnssvralt"><?php echo _("Alternate DNS Server") ?></label>
-                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-dnssvralt" placeholder="0.0.0.0">
+                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-dnssvralt" placeholder="<?php echo $dns2; ?>">
 		  </div>
                   <?php if (!RASPI_MONITOR_ENABLED): ?>
                       <a href="#" class="btn btn-outline btn-primary intsave" data-int="<?php echo $if_quoted ?>"><?php echo _("Save settings") ?></a>
@@ -106,7 +106,7 @@
 
         </div><!-- /.tab-content -->
       </div><!-- /.card-body -->
-      <div class="card-footer"><?php echo _("Information provided by /sys/class/net"); ?></div>
+      <div class="card-footer"><?php echo _("Information provided by /sys/class/net and /etc/systemd/network/bridge-br0.network"); ?></div>
     </div><!-- /.card -->
   </div><!-- /.col-lg-12 -->
 </div>
