@@ -8,7 +8,6 @@ require_once 'includes/status_messages.php';
  */
 function DisplayNetworkingConfig()
 {
-
     $status = new StatusMessages();
 
     exec("ls /sys/class/net | grep br0", $interfaces);
@@ -22,7 +21,9 @@ function DisplayNetworkingConfig()
         while (!feof($fh)) {
             $line = fgets($fh);
             if (strpos($line, "Address")) {
-                $ip = explode("=", $line)[1];
+                $ip_and_netmask = explode("=", $line)[1];
+                $ip = explode("/", $ip_and_netmask)[0];
+                $netmask = "/" . explode("/", $ip_and_netmask)[1];
                 continue;
             }
             if (strpos($line, "Gateway")) {
@@ -39,10 +40,9 @@ function DisplayNetworkingConfig()
                 }
                 continue;
             }
-
         }
         fclose($fh);
     }
     
-    echo renderTemplate("networking", compact("status", "interfaces"));
+    echo renderTemplate("networking", compact("status", "interfaces", "ip", "netmask", "gw", "dns1", "dns2"));
 }
