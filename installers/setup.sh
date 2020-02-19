@@ -104,7 +104,12 @@ systemctl enable raspap.service
 echo "[INFO] Configuring network..."
 
 # Deny eth0 in /etc/dhcpcd.conf so it does not get any other address (it seems that doing "dhcp4: false" is not good enough and it gets an address with no connection)
-echo "denyinterfaces eth0" >> /etc/dhcpcd.conf
+cat /etc/dhcpcd.conf | grep -q "denyinterfaces eth0"
+return_code=$(echo $?)
+if [ $return_code -ne 0 ]; then
+    # Only edit file if eth0 is not already denied
+    echo "denyinterfaces eth0" >> /etc/dhcpcd.conf
+fi
 # Move all network-related config files to where they belong
 mv /var/www/html/config/default_hostapd /etc/default/hostapd
 mv /var/www/html/config/hostapd.conf /etc/hostapd/

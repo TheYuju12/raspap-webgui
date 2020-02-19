@@ -28,7 +28,7 @@ rm -rf /etc/netplan
 rm -rf /etc/hostapd
 rm -f /etc/default/hostapd
 # Undo our changes in dhcpcd.conf
-echo "Restoring network configuration..."
+echo "[INFO] Restoring network configuration..."
 sed -i '/denyinterfaces eth0/d' /etc/dhcpcd.conf
 # Restore network it if was netplan based
 if [ "$restore_netplan" = true ]; then
