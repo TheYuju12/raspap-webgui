@@ -75,23 +75,23 @@
                   <h4><?php echo _("Static IP Options") ?></h4>
                   <div class="form-group">
                     <label for="<?php echo $if_quoted ?>-ipaddress"><?php echo _("IP Address") ?></label>
-                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-ipaddress" placeholder="0.0.0.0">
+                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-ipaddress">
                   </div>
                   <div class="form-group">
                     <label for="<?php echo $if_quoted ?>-netmask"><?php echo _("Subnet Mask") ?></label>
-                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-netmask" placeholder="/24">
+                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-netmask">
                   </div>
                   <div class="form-group">
                     <label for="<?php echo $if_quoted ?>-gateway"><?php echo _("Default Gateway") ?></label>
-                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-gateway" placeholder="0.0.0.0">
+                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-gateway">
                   </div>
                   <div class="form-group">
                     <label for="<?php echo $if_quoted ?>-dnssvr"><?php echo _("DNS Server") ?></label>
-                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-dnssvr" placeholder="0.0.0.0">
+                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-dnssvr">
                   </div>
                   <div class="form-group">
                     <label for="<?php echo $if_quoted ?>-dnssvralt"><?php echo _("Alternate DNS Server") ?></label>
-                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-dnssvralt" placeholder="0.0.0.0">
+                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-dnssvralt">
 		  </div>
                   <?php if (!RASPI_MONITOR_ENABLED): ?>
                       <a href="#" class="btn btn-outline btn-primary intsave" data-int="<?php echo $if_quoted ?>"><?php echo _("Save settings") ?></a>
