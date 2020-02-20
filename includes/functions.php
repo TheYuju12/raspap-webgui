@@ -1,4 +1,15 @@
 <?php
+
+/* Function to log to js console */ 
+
+function debug_to_console($data) {
+    $output = $data;
+    if (is_array($output))
+        $output = implode(',', $output);
+
+    echo "<script>console.log('Debug: " . $output . "' );</script>";
+}
+
 /* Functions for Networking */
 
 function mask2cidr($mask)

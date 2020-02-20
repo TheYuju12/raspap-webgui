@@ -27,9 +27,12 @@ rm -rf /etc/raspap
 rm -rf /etc/netplan
 rm -rf /etc/hostapd
 rm -f /etc/default/hostapd
+rm -f /etc/cron.hourly/periodic_arp
+rm -f /etc/sudoers.d/dumbap
 # Undo our changes in dhcpcd.conf
 echo "[INFO] Restoring network configuration..."
 sed -i '/denyinterfaces eth0/d' /etc/dhcpcd.conf
+sed -i '/denyinterfaces wlan0/d' /etc/dhcpcd.conf
 # Restore network it if was netplan based
 if [ $restore_netplan -e 1 ]; then
     mkdir /etc/netplan

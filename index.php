@@ -65,7 +65,7 @@ if ($_COOKIE['sidebarToggled'] == 'true' ) {
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title><?php echo _("RaspAP WiFi Configuration Portal"); ?></title>
+    <title><?php echo _("not-so-DumbAP WiFi Configuration Portal"); ?></title>
 
     <!-- Bootstrap Core CSS -->
     <link href="dist/bootstrap/css/bootstrap.css" rel="stylesheet">
@@ -109,7 +109,7 @@ if ($_COOKIE['sidebarToggled'] == 'true' ) {
       <ul class="navbar-nav sidebar sidebar-light d-none d-md-block accordion <?php echo $toggleState; ?>" id="accordionSidebar">
         <!-- Sidebar - Brand -->
         <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php?page=wlan0_info">
-          <div class="sidebar-brand-text ml-1">RaspAP</div>
+          <span style="font-size: 11px;">not-so<span><div class="sidebar-brand-text ml-1 mt-4 mb-4">DumbAP</div>
         </a>
         <!-- Divider -->
         <hr class="sidebar-divider my-0">

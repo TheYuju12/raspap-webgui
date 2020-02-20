@@ -5,7 +5,16 @@ if ($arrHostapdConf['WifiAPEnable'] == 1) {
 } else {
     $client_iface = RASPI_WIFI_CLIENT_INTERFACE;
 }
-exec('cat '.RASPI_DNSMASQ_LEASES.'| grep -E $(arp -i '.$client_iface.' -n | grep -oE "(([0-9]|[a-f]|[A-F]){2}:){5}([0-9]|[a-f]|[A-F]){2}" | tr "\n" "\|" | sed "s/.$//")', $clients);
+// A bash script will manage the logic to retrieve a list of devices connected to our AP through a json file.
+// Simply name the file, execute the script and parse the file (which should be created by the bash script)
+$jsonFile = RASPI_CONFIG_NETWORKING . "/connected_devices.json";
+shell_exec(RASPI_SCRIPTS . "/retrieve_connected_devices.sh " . $jsonFile);
+// Parse json file and operate with it 
+$jsonContent = file_get_contents($jsonFile, true);
+$jsonData = json_decode($jsonContent, true);
+debug_to_console(json_encode($jsonData));
+$clients = $jsonData["output"];
+//exec('cat '.RASPI_DNSMASQ_LEASES.'| grep -E $(arp -i '.$client_iface.' -n | grep -oE "(([0-9]|[a-f]|[A-F]){2}:){5}([0-9]|[a-f]|[A-F]){2}" | tr "\n" "\|" | sed "s/.$//")', $clients);
 $ifaceStatus = $wlan0up ? "up" : "down";
 ?>
 <div class="row">
@@ -77,12 +86,12 @@ $ifaceStatus = $wlan0up ? "up" : "down";
                       </tr>
                     </thead>
                     <tbody>
-                        <?php foreach (array_slice($clients,0, 2) as $client) : ?>
-                            <?php $props = explode(' ', $client) ?>
+                        <?php foreach ($clients as $client) : ?>
+                            <!--?php $props = explode(' ', $client) ?> -->
                         <tr>
-                          <td><?php echo htmlspecialchars($props[3], ENT_QUOTES) ?></td>
-                          <td><?php echo htmlspecialchars($props[2], ENT_QUOTES) ?></td>
-                          <td><?php echo htmlspecialchars($props[1], ENT_QUOTES) ?></td>
+                          <td><?php echo htmlspecialchars($client["name"], ENT_QUOTES) ?></td>
+                          <td><?php echo htmlspecialchars($client["ip"], ENT_QUOTES) ?></td>
+                          <td><?php echo htmlspecialchars($client["mac"], ENT_QUOTES) ?></td>
                         </tr>
                         <?php endforeach ?>
                     </tbody>

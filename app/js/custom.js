@@ -51,11 +51,10 @@ function setupTabs() {
 
 function loadCurrentSettings(strInterface) {
     $.post('ajax/networking/get_int_config.php',{interface:strInterface},function(data){
-        console.log("AQUIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII");
         jsonData = JSON.parse(data);
         console.log(jsonData);
         var int = "br0";
-        var br = jsonData["network"]["bridges"][int];
+        var br = jsonData["output"]["network"]["bridges"][int];
         if (br["dhcp4"] || br["dhcp4"] === "true") {
             $('#'+int+'-dhcp').click();
         }
@@ -68,10 +67,8 @@ function loadCurrentSettings(strInterface) {
                 $('#'+int+'-netmask').val(createNetmaskAddr(arrIPNetmask[1]));
             }
             $('#'+int+'-gateway').val(br["gateway4"]);
-            for (let dns of br["nameservers"]["addresses"]) {
-                $('#'+int+'-dnssvr').val(dns[0]);
-                $('#'+int+'-dnssvralt').val(dns[1]);
-            }
+            $('#'+int+'-dnssvr').val(br["nameservers"]["addresses"][0]);
+            $('#'+int+'-dnssvralt').val(br["nameservers"]["addresses"][1]);
         }
     });
 }

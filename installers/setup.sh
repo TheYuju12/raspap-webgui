@@ -80,10 +80,6 @@ echo ""
 
 git clone https://github.com/TheYuju12/raspap-webgui.git html
 
-# Move the file which contains the software we installed to correct location (if it exists)
-if [ -f pkgs_to_uninstall ]; then
-    mv pkgs_to_uninstall html/uninstaller/pkgs_to_uninstall
-fi
 # Set executable permissions to uninstaller
 chmod +x html/uninstaller/uninstall.sh
 # Replace /var/www/html with our web hierarchy
@@ -96,9 +92,18 @@ chown -R www-data:www-data /var/www/html
 # Move the RaspAP configuration file to /etc folder.
 mkdir /etc/raspap
 mv /var/www/html/raspap.php /etc/raspap/
+# Move uninstall stuff to correct location
+mv /var/www/html/uninstaller /etc/raspap/
+if [ -f pkgs_to_uninstall ]; then
+    mv pkgs_to_uninstall etc/uninstaller/
+fi
 # Move scripts to proper location and set executable permissions to them
 mv /var/www/html/scripts /etc/raspap/
-sudo chmod +x /etc/raspap/scripts/*
+chmod +x /etc/raspap/scripts/*
+# Hourly task: arp to discover neighbours and fill caches
+mv /etc/raspap/scripts/periodic_arp /etc/cron.hourly
+# Create folder for network related files
+mkdir /etc/raspap/networking
 # Set ownership of /etc/raspap
 chown -R www-data:www-data /etc/raspap
 # Move the HostAPD logging and service control shell scripts to /etc folder.
@@ -113,17 +118,25 @@ mv /var/www/html/installers/raspap.service /lib/systemd/system
 systemctl enable raspap.service
 
 # Set needed permissions in sudoers file
-echo "www-data ALL=(ALL) NOPASSWD:/sbin/reboot" >> /etc/sudoers
-echo "www-data ALL=(ALL) NOPASSWD:/etc/raspap/scripts/*" >> /etc/sudoers
+echo "www-data ALL=(ALL) NOPASSWD:/sbin/reboot" > /etc/sudoers.d/dumbap
+echo "www-data ALL=(ALL) NOPASSWD:/etc/raspap/scripts/retrieve_connected_devices.sh" >> /etc/sudoers.d/dumbap
+echo "www-data ALL=(ALL) NOPASSWD:/etc/raspap/scripts/update_network_config.sh" >> /etc/sudoers.d/dumbap
+echo "www-data ALL=(ALL) NOPASSWD:/etc/cron/hourly/periodic_arp" >> /etc/sudoers.d/dumbap
 
 echo "[INFO] Configuring network..."
 
-# Deny eth0 in /etc/dhcpcd.conf so it does not get any other address (it seems that doing "dhcp4: false" is not good enough and it gets an address with no connection)
+# Deny eth0 and wlan0 in /etc/dhcpcd.conf so it does not get any other address (it seems that doing "dhcp4: false" is not good enough and it gets an address with no connection)
 cat /etc/dhcpcd.conf | grep -q "denyinterfaces eth0"
 return_code=$(echo $?)
 if [ $return_code -ne 0 ]; then
     # Only edit file if eth0 is not already denied
     echo "denyinterfaces eth0" >> /etc/dhcpcd.conf
+fi
+cat /etc/dhcpcd.conf | grep -q "denyinterfaces wlan0"
+return_code=$(echo $?)
+if [ $return_code -ne 0 ]; then
+    # Only edit file if eth0 is not already denied
+    echo "denyinterfaces wlan0" >> /etc/dhcpcd.conf
 fi
 # Move all network-related config files to where they belong
 mv /var/www/html/config/default_hostapd /etc/default/hostapd
