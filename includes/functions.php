@@ -8,49 +8,6 @@ function mask2cidr($mask)
     return 32-log(($long ^ $base)+1, 2);
 }
 
-/* Functions to read and write .network files */
-
-function parse_network_file() {
-
-    if ($fh = fopen(RASPI_CONFIG_NETWORKING, 'r')) {
-        $data = array(); // We're gonna use this as a dictionary
-
-        $dns_ocurrences = 0;
-        $dhcp = false;
-        while (!feof($fh)) {
-            $line = fgets($fh);
-            if (strpos($line, "DHCP") !== false) {
-                $dhcp = true;
-                break;
-            }
-            if (strpos($line, "Address") !== false) {
-                $ip_and_netmask = explode("=", $line)[1];
-                $ip = explode("/", $ip_and_netmask)[0];
-                $netmask = "/" . explode("/", $ip_and_netmask)[1];
-                continue;
-            }
-            if (strpos($line, "Gateway") !== false) {
-                $gw = explode("=", $line)[1];
-                continue;
-            }
-            if (strpos($line, "DNS") !== false) {
-                $dns_ocurrences++;
-                if ($dns_ocurrences == 1) {
-                    $dns1 = explode("=", $line)[1];
-                }
-                elseif ($dns_ocurrences == 2) {
-                    $dns2 = explode("=", $line)[1];
-                }
-                continue;
-            }
-        }
-        fclose($fh);
-    }
-    else return NULL;
-}
-
-
-
 /* Functions to write ini files */
 
 function write_php_ini($array, $file)

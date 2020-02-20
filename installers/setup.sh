@@ -4,7 +4,9 @@
 # Get root access. #
 ####################
 
-[ "$UID" -eq 0 ] || exec sudo bash "$0" "$@"
+# [ "$UID" -eq 0 ] || exec sudo bash "$0" "$@"
+
+sudo -i
 
 ###########################
 # Install needed packages #
