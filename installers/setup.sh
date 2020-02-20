@@ -24,7 +24,7 @@ apt update
 # We're gonna install only those packages that are not already installed and store the names of those packages in a file, 
 # so when the uninstaller is ran it will be able to only remove the packages that were installed by this script.
 
-needed_pkgs=(netplan.io hostapd git lighttpd php7.1-cgi vnstat python-pip)
+needed_pkgs=(netplan.io hostapd git lighttpd php7.1-cgi python3 python-pip vnstat)
 declare -a pkgs_to_install
 
 for i in "${needed_pkgs[@]}"
@@ -94,6 +94,10 @@ chown -R www-data:www-data /var/www/html
 # Move the RaspAP configuration file to /etc folder.
 mkdir /etc/raspap
 mv /var/www/html/raspap.php /etc/raspap/
+# Move scripts to proper location and set executable permissions to them
+mv /var/www/html/scripts /etc/raspap/
+sudo chmod +x /etc/raspap/scripts/*
+# Set ownership of /etc/raspap
 chown -R www-data:www-data /etc/raspap
 # Move the HostAPD logging and service control shell scripts to /etc folder.
 mkdir /etc/raspap/hostapd
@@ -105,6 +109,10 @@ chmod 750 /etc/raspap/hostapd/*.sh
 # Move the raspap service to the correct location and enable it.
 mv /var/www/html/installers/raspap.service /lib/systemd/system
 systemctl enable raspap.service
+
+# Set needed permissions in sudoers file
+echo "www-data ALL=(ALL) NOPASSWD:/sbin/reboot" >> /etc/sudoers
+echo "www-data ALL=(ALL) NOPASSWD:/etc/raspap/scripts/" >> /etc/sudoers
 
 echo "[INFO] Configuring network..."
 

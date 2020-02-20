@@ -56,7 +56,7 @@ if (isset($int)) {
         exec("python3 " . YAML_SCRIPT . "json_to_yaml " . $jsonFile);
         // And move resulting file to proper location
         $yamlFile = RASPI_CONFIG_NETWORKING . CONFIG_NETWORK_FILENAME . ".yaml";
-        exec("mv " . $yamlFile . NETPLAN_CONFIG_DIR);
+        exec("bash " . BASH_SCRIPTS . "/update_network_config.sh");
         $jsonData = ['return'=>0,'output'=>['Successfully Updated Network Configuration']];
     }
     else {

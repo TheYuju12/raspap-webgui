@@ -1,10 +1,8 @@
 <?php
-
+etc/
 define("CONFIG_NETWORK_FILENAME", "network-config");
 define('NETPLAN_CONFIG_DIR', "/etc/netplan/");
 define('NETPLAN_CONFIG_FILE', NETPLAN_CONFIG_DIR . CONFIG_NETWORK_FILENAME . ".yaml");
-
-define("YAML_SCRIPT", "/var/www/html/app/lib/yaml_operations.py");
 
 define('RASPI_VERSION', '2.2');
 define('RASPI_CONFIG', '/etc/raspap');
@@ -12,6 +10,10 @@ define('RASPI_CONFIG_NETWORKING', RASPI_CONFIG.'/networking');
 define('RASPI_ADMIN_DETAILS', RASPI_CONFIG.'/raspap.auth');
 define('RASPI_WIFI_CLIENT_INTERFACE', 'wlan0');
 define('RASPI_CACHE_PATH', sys_get_temp_dir() . '/raspap');
+
+
+define("YAML_SCRIPT", "/var/www/html/app/lib/yaml_operations.py");
+define("BASH_SCRIPTS", RASPI_CONFIG . "/scripts");
 
 // Constants for configuration file paths.
 // These are typical for default RPi installs. Modify if needed.
