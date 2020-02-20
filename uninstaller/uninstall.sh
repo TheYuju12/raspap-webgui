@@ -3,7 +3,7 @@
 # Get root access.
 [ "$UID" -eq 0 ] || exec sudo bash "$0" "$@"
 # Purge the installed packages one by one
-input="pkgs_to_uninstall"
+input="/etc/rasp/uninstaller/pkgs_to_uninstall"
 restore_netplan=1
 if [ ! -f input ]; then
     while IFS= read -r pkg
