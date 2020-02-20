@@ -1,8 +1,10 @@
 <?php
 
+define("CONFIG_NETWORK_FILENAME", "network-config")
 define('RASPI_VERSION', '2.2');
 define('RASPI_CONFIG', '/etc/raspap');
-define('RASPI_CONFIG_NETWORKING', "/etc/netplan/network-config.yaml");
+define('NETPLAN_CONFIG', "/etc/netplan/" . CONFIG_NETWORK_FILENAME . ".yaml");
+define('RASPI_CONFIG_NETWORKING', RASPI_CONFIG.'/networking');
 define('RASPI_ADMIN_DETAILS', RASPI_CONFIG.'/raspap.auth');
 define('RASPI_WIFI_CLIENT_INTERFACE', 'wlan0');
 define('RASPI_CACHE_PATH', sys_get_temp_dir() . '/raspap');

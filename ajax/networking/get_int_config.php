@@ -5,19 +5,14 @@ require '../../includes/csrf.php';
 require_once '../../includes/config.php';
 require_once '../../includes/functions.php';
 
-
 if (isset($_POST['interface'])) {
-    $int = preg_replace('/[^a-z0-9]/', '', $_POST['interface']);
-    if (!file_exists(RASPI_CONFIG_NETWORKING.'/'.$int.'.ini')) {
-        touch(RASPI_CONFIG_NETWORKING.'/'.$int.'.ini');
-    }
 
-    $intConfig = parse_ini_file(RASPI_CONFIG_NETWORKING.'/'.$int.'.ini', false, INI_SCANNER_RAW);
-    $jsonData = ['return'=>1,'output'=>['intConfig'=>$intConfig]];
+    exec("python3 yaml_to_json" . NETPLAN_CONFIG);
+    // TODO Read json file located in RASPI_CONFIG_NETWORKING and called 
+    $jsonData = ['return'=>1,'output'=>['intConfig'=>$data]];
     echo json_encode($jsonData);
-
-    // Todo - get dhcp lease information from `dhcpcd -U eth0` ? maybe ?
-} else {
+}
+else {
     $jsonData = ['return'=>2,'output'=>['Error getting data']];
     echo json_encode($jsonData);
 }

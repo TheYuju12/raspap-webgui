@@ -51,7 +51,9 @@ function setupTabs() {
 
 function loadCurrentSettings(strInterface) {
     $.post('ajax/networking/get_int_config.php',{interface:strInterface},function(data){
+        console.log("AQUIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII");
         jsonData = JSON.parse(data);
+        console.log(jsonData);
         var int = "br0";
         var br = jsonData["network"]["bridges"][int];
         if (br["dhcp4"] || br["dhcp4"] === "true") {

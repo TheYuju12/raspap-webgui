@@ -24,7 +24,7 @@ apt update
 # We're gonna install only those packages that are not already installed and store the names of those packages in a file, 
 # so when the uninstaller is ran it will be able to only remove the packages that were installed by this script.
 
-needed_pkgs=(netplan.io hostapd git lighttpd php7.1-cgi vnstat)
+needed_pkgs=(netplan.io hostapd git lighttpd php7.1-cgi vnstat python-pip)
 declare -a pkgs_to_install
 
 for i in "${needed_pkgs[@]}"
@@ -50,6 +50,9 @@ if [ ${#pkgs_to_install[@]} -ne 0 ]; then
         apt install $i -y
     done
 fi
+
+# Install yaml support for python
+pip install pyyaml
 
 ##########################
 # Configure new packages #

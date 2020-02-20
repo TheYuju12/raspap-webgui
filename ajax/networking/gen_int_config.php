@@ -5,9 +5,6 @@ require '../../includes/csrf.php';
 require_once '../../includes/config.php';
 require_once '../../includes/functions.php';
 
-$config_file = yaml_parse_file(RASPI_CONFIG_NETWORKING);
-echo json_encode($config_file)
-/*
 if (isset($_POST['generate'])) {
     $cnfNetworking = array_diff(scandir(RASPI_CONFIG_NETWORKING, 1), array('..','.','dhcpcd.conf'));
     $cnfNetworking = array_combine($cnfNetworking, $cnfNetworking);
@@ -42,5 +39,5 @@ if (isset($_POST['generate'])) {
         $output = ['return'=>2,'output'=>'Unable to write to apply settings'];
     }
     echo json_encode($output);
-*/
+
 }
