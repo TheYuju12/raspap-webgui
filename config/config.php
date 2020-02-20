@@ -2,7 +2,7 @@
 
 define('RASPI_VERSION', '2.2');
 define('RASPI_CONFIG', '/etc/raspap');
-define('RASPI_CONFIG_NETWORKING', "/etc/systemd/network/bridge-br0.network");
+define('RASPI_CONFIG_NETWORKING', "/etc/netplan/network-config.yaml");
 define('RASPI_ADMIN_DETAILS', RASPI_CONFIG.'/raspap.auth');
 define('RASPI_WIFI_CLIENT_INTERFACE', 'wlan0');
 define('RASPI_CACHE_PATH', sys_get_temp_dir() . '/raspap');
