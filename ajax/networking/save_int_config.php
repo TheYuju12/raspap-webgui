@@ -6,25 +6,16 @@ require_once '../../includes/config.php';
 require_once '../../includes/functions.php';
 
 if (isset($_POST['interface'])) {
-    $int = $_POST['interface'];
-    $cfg = [];
-    $file = $int.".ini";
-    $ip = $_POST[$int.'-ipaddress'];
-    $netmask = mask2cidr($_POST[$int.'-netmask']);
-    $dns1 = $_POST[$int.'-dnssvr'];
-    $dns2 = $_POST[$int.'-dnssvralt'];
-
-
-    $cfg['interface'] = $int;
-    $cfg['routers'] = $_POST[$int.'-gateway'];
-    $cfg['ip_address'] = $ip."/".$netmask;
-    $cfg['domain_name_server'] = $dns1." ".$dns2;
-    $cfg['static'] = $_POST[$int.'-static'];
-    $cfg['failover'] = $_POST[$int.'-failover'];
-
-    if (write_php_ini($cfg, RASPI_CONFIG_NETWORKING.'/'.$file)) {
+    $jsonFile = RASPI_CONFIG_NETWORKING . CONFIG_NETWORK_FILENAME . ".json";
+    // Check if json file exists: if it does, call python script to convert it into a yaml file
+    if (file_exists($jsonFile)) {
+        exec("python3 " . YAML_SCRIPT . "json_to_yaml " . $jsonFile);
+        // And move resulting file to proper location
+        $yamlFile = RASPI_CONFIG_NETWORKING . CONFIG_NETWORK_FILENAME . ".yaml";
+        exec("mv " . $yamlFile . NETPLAN_CONFIG_DIR);
         $jsonData = ['return'=>0,'output'=>['Successfully Updated Network Configuration']];
-    } else {
+    }
+    else {
         $jsonData = ['return'=>1,'output'=>['Error saving network configuration to file']];
     }
 } else {

@@ -4,7 +4,7 @@ require '../../includes/csrf.php';
 
 require_once '../../includes/config.php';
 require_once '../../includes/functions.php';
-
+/*
 if (isset($_POST['generate'])) {
     $cnfNetworking = array_diff(scandir(RASPI_CONFIG_NETWORKING, 1), array('..','.','dhcpcd.conf'));
     $cnfNetworking = array_combine($cnfNetworking, $cnfNetworking);
@@ -41,3 +41,4 @@ if (isset($_POST['generate'])) {
     echo json_encode($output);
 
 }
+*/
