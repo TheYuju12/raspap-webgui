@@ -9,8 +9,10 @@
 ###########################
 # Install needed packages #
 ###########################
-
+echo "#######################################"
 echo "WELCOME TO THE not-so-DumbAP INSTALLER!"
+echo "#######################################"
+echo ""
 echo "This routine will set everything up in a few minutes. Please, wait patiently."
 sleep 2
 echo ""
