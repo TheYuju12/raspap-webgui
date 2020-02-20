@@ -114,7 +114,7 @@ systemctl enable raspap.service
 
 # Set needed permissions in sudoers file
 echo "www-data ALL=(ALL) NOPASSWD:/sbin/reboot" >> /etc/sudoers
-echo "www-data ALL=(ALL) NOPASSWD:/etc/raspap/scripts/" >> /etc/sudoers
+echo "www-data ALL=(ALL) NOPASSWD:/etc/raspap/scripts/*" >> /etc/sudoers
 
 echo "[INFO] Configuring network..."
 
