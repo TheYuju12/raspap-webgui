@@ -8,20 +8,26 @@ function msgShow(retcode,msg) {
     return htmlMsg;
 }
 
-function ip2long(IP) {
-    var i = 0;
-    IP = IP.match( /^([1-9]\d*|0[0-7]*|0x[\da-f]+)(?:\.([1-9]\d*|0[0-7]*|0x[\da-f]+))?(?:\.([1-9]\d*|0[0-7]*|0x[\da-f]+))?(?:\.([1-9]\d*|0[0-7]*|0x[\da-f]+))?$/i );
-    if (!IP) { return false; }
-    IP[0] = 0;
-    for (i = 1; i < 5; i += 1) {
-        IP[0] += !!((IP[i] || '').length);
-        IP[i] = parseInt(IP[i]) || 0;
-    }
-    IP.push(256, 256, 256, 256);
-    IP[4 + IP[0]] *= Math.pow(256, 4 - IP[0]);
-    if (IP[1] >= IP[5] || IP[2] >= IP[6] || IP[3] >= IP[7] || IP[4] >= IP[8]) { return false; }
-    return IP[1] * (IP[0] === 1 || 16777216) + IP[2] * (IP[0] <= 2 || 65536) + IP[3] * (IP[0] <= 3 || 256) + IP[4] * 1;
-}
+function ip2long (ip_address) {  
+    // Converts a string containing an (IPv4) Internet Protocol dotted address into a proper address    
+    //   
+    // version: 901.714  
+    // discuss at: http://phpjs.org/functions/ip2long  
+    // +   original by: Waldo Malqui Silva  
+    // +   improved by: Victor  
+    // *     example 1: ip2long( '192.0.34.166' );  
+    // *     returns 1: 3221234342  
+    var output = false;  
+    var parts = [];  
+    if (ip_address.match(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/)) {  
+        parts  = ip_address.split('.');  
+        output = ( parts[0] * 16777216 +  
+        ( parts[1] * 65536 ) +  
+        ( parts[2] * 256 ) +  
+        ( parts[3] * 1 ) );  
+    }  
+    return output;  
+}  
 
 /*
     Transforms a given netmask with format X.X.X.X into a netmask with format /X
@@ -29,9 +35,13 @@ function ip2long(IP) {
 
 function netmask2netplan(mask)
 {
-    number = ip2long(mask);
-    base = ip2long('255.255.255.255');
-    return 32-Math.log((number ^ base)+1, 2);
+    var maskNodes = mask.match(/(\d+)/g);
+    var cidr = 0;
+    for(var i in maskNodes)
+    {
+    cidr += (((maskNodes[i] >>> 0).toString(2)).match(/1/g) || []).length;
+    }
+    return cidr;
 }
 
 function createNetmaskAddr(bitCount) {
@@ -94,7 +104,7 @@ function loadCurrentSettings(strInterface) {
     $.post('ajax/networking/get_int_config.php',{interface:strInterface},function(data){
         jsonData = JSON.parse(data);
         console.log(jsonData);
-        var int = "br0";
+        var int = strInterface;
         var br = jsonData["output"]["network"]["bridges"][int];
         if (br["dhcp4"] || br["dhcp4"] === "true") {
             $('#'+int+'-dhcp').click();
@@ -135,10 +145,14 @@ function saveNetworkSettings(int) {
 
 function applyNetworkSettings(strInterface) {
     // Get current configuration as JSON
-    var jsonData;
     $.post('ajax/networking/get_int_config.php',{interface:strInterface},function(data){
         jsonData = JSON.parse(data);
     });
+    if (jsonData["return"]) {
+        console.log("Error executing ajax routine: ajax/networking/get_int_config.php.");
+        return;
+    }
+    delete jsonData["return"];
     var int = strInterface;
     var br = jsonData["output"]["network"]["bridges"][int];
     var confirm_msg = "A reboot is needed to apply a new network configuration. Do you wish to continue?";
@@ -153,11 +167,39 @@ function applyNetworkSettings(strInterface) {
     }
     else {
         // If static configuration, we need to check that all required inputs are filled (only dns2 is optional)
-        if (!$('#'+int+'-ipaddress').val() || !$('#'+int+'-netmask').val() || !$('#'+int+'-gateway').val() || !$('#'+int+'-dnssvr').val()) {
-            alert();
+        var error = false;
+        if (!$('#'+int+'-ipaddress').val()) {
+            $('#'+int+'-ipaddress-empty').css("display", "inline");
+            error = true;
+        }
+        else {
+            $('#'+int+'-ipaddress-empty').css("display", "none");
+        }
+        if (!$('#'+int+'-netmask').val()) {
+            $('#'+int+'-netmask-empty').css("display", "inline");
+            error = true;
+        }
+        else {
+            $('#'+int+'-netmask-empty').css("display", "none");
+        }
+        if (!$('#'+int+'-gateway').val()) {
+            $('#'+int+'-gateway-empty').css("display", "inline");
+            error = true;
+        }
+        else {
+            $('#'+int+'-gateway-empty').css("display", "none");
+        }
+        if(!$('#'+int+'-dnssvr').val()) {
+            $('#'+int+'-dnssvr-empty').css("display", "inline");
+            error = true;
+        }
+        else {
+            $('#'+int+'-dnssvr-empty').css("display", "none");
+        }
+        if (error) {
             return;
         }
-        // If everything alright
+        // If everything alright proceed
         if (br["dhcp4"]) {
             delete br["dhcp4"];
         }

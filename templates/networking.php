@@ -67,18 +67,26 @@
                   <div class="form-group">
                     <label for="<?php echo $if_quoted ?>-ipaddress"><?php echo _("IP Address") ?></label>
                     <input type="text" class="form-control" id="<?php echo $if_quoted ?>-ipaddress" placeholder="0.0.0.0">
+                    <span class="error" id="<?php echo $if_quoted ?>-ipaddress-empty">This field cannot be empty</span>
+                    <span class="error" id="<?php echo $if_quoted ?>-ipaddress-invalid">This field must contain a valid IP address</span>
                   </div>
                   <div class="form-group">
                     <label for="<?php echo $if_quoted ?>-netmask"><?php echo _("Subnet Mask") ?></label>
                     <input type="text" class="form-control" id="<?php echo $if_quoted ?>-netmask" placeholder="255.255.255.255">
+                    <span class="error" id="<?php echo $if_quoted ?>-netmask-empty">This field cannot be empty</span>
+                    <span class="error" id="<?php echo $if_quoted ?>-netmask-invalid">This field must contain a valid netmask</span>
                   </div>
                   <div class="form-group">
                     <label for="<?php echo $if_quoted ?>-gateway"><?php echo _("Default Gateway") ?></label>
                     <input type="text" class="form-control" id="<?php echo $if_quoted ?>-gateway" placeholder="0.0.0.0">
+                    <span class="error" id="<?php echo $if_quoted ?>-gateway-empty">This field cannot be empty</span>
+                    <span class="error" id="<?php echo $if_quoted ?>-gateway-invalid">This field must contain a valid IP address</span>
                   </div>
                   <div class="form-group">
                     <label for="<?php echo $if_quoted ?>-dnssvr"><?php echo _("DNS Server") ?></label>
                     <input type="text" class="form-control" id="<?php echo $if_quoted ?>-dnssvr" placeholder="0.0.0.0">
+                    <span class="error" id="<?php echo $if_quoted ?>-dnssvr-empty">This field cannot be empty</span>
+                    <span class="error" id="<?php echo $if_quoted ?>-dnssvr-invalid">This field must contain a valid IP address</span>
                   </div>
                   <div class="form-group">
                     <label for="<?php echo $if_quoted ?>-dnssvralt"><?php echo _("Alternate DNS Server") ?></label>
