@@ -139,7 +139,6 @@ fi
 mv /var/www/html/config/default_hostapd /etc/default/hostapd
 mv /var/www/html/config/hostapd.conf /etc/hostapd/
 mv /var/www/html/config/network-config.yaml /etc/netplan/
-mv /var/www/html/config/config.php /var/www/html/includes/
 
 ####################################
 # Apply netplan changes and reboot #
