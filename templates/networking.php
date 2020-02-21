@@ -50,22 +50,13 @@
                 <form id="frm-<?php echo $if_quoted ?>">
                   <?php echo CSRFTokenFieldTag() ?>
                   <div class="form-group">
-                    <h4 class="mt-3"><?php echo _("Adapter IP Address Settings") ?></h4>
-                    <div class="btn-group" role="group" data-toggle="buttons">
+                    <h4 class="mt-3 mb-3"><?php echo _("Adapter IP Address Settings") ?></h4>
+                    <div class="btn-group btn-group-toggle" role="group" data-toggle="buttons">
                       <label class="btn btn-primary">
                         <input class="mr-2" type="radio" name="<?php echo $if_quoted ?>-addresstype" id="<?php echo $if_quoted ?>-dhcp" autocomplete="off"><?php echo _("DHCP") ?>
                       </label>
                       <label class="btn btn-primary">
                         <input class="mr-2" type="radio" name="<?php echo $if_quoted ?>-addresstype" id="<?php echo $if_quoted ?>-static" autocomplete="off"><?php echo _("Static IP") ?>
-                      </label>
-                    </div><!-- /.btn-group -->
-                    <h4 class="mt-3"><?php echo _("Enable Fallback to Static Option") ?></h4>
-                    <div class="btn-group" role="group" data-toggle="buttons">
-                      <label class="btn btn-primary">
-                        <input class="mr-2" type="radio" name="<?php echo $if_quoted ?>-dhcpfailover" id="<?php echo $if_quoted ?>-failover" autocomplete="off"><?php echo _("Enabled") ?>
-                      </label>
-                      <label class="btn btn-warning">
-                        <input class="mr-2" type="radio" name="<?php echo $if_quoted ?>-dhcpfailover" id="<?php echo $if_quoted ?>-nofailover" autocomplete="off"><?php echo _("Disabled") ?>
                       </label>
                     </div><!-- /.btn-group -->
                   </div><!-- /.form-group -->
@@ -75,23 +66,23 @@
                   <h4><?php echo _("Static IP Options") ?></h4>
                   <div class="form-group">
                     <label for="<?php echo $if_quoted ?>-ipaddress"><?php echo _("IP Address") ?></label>
-                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-ipaddress">
+                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-ipaddress" placeholder="0.0.0.0">
                   </div>
                   <div class="form-group">
                     <label for="<?php echo $if_quoted ?>-netmask"><?php echo _("Subnet Mask") ?></label>
-                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-netmask">
+                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-netmask" placeholder="255.255.255.255">
                   </div>
                   <div class="form-group">
                     <label for="<?php echo $if_quoted ?>-gateway"><?php echo _("Default Gateway") ?></label>
-                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-gateway">
+                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-gateway" placeholder="0.0.0.0">
                   </div>
                   <div class="form-group">
                     <label for="<?php echo $if_quoted ?>-dnssvr"><?php echo _("DNS Server") ?></label>
-                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-dnssvr">
+                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-dnssvr" placeholder="0.0.0.0">
                   </div>
                   <div class="form-group">
                     <label for="<?php echo $if_quoted ?>-dnssvralt"><?php echo _("Alternate DNS Server") ?></label>
-                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-dnssvralt">
+                    <input type="text" class="form-control" id="<?php echo $if_quoted ?>-dnssvralt" placeholder="0.0.0.0">
 		  </div>
                   <?php if (!RASPI_MONITOR_ENABLED): ?>
                       <a href="#" class="btn btn-outline btn-primary intsave" data-int="<?php echo $if_quoted ?>"><?php echo _("Save settings") ?></a>

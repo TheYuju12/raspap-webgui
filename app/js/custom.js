@@ -8,6 +8,32 @@ function msgShow(retcode,msg) {
     return htmlMsg;
 }
 
+function ip2long(IP) {
+    var i = 0;
+    IP = IP.match( /^([1-9]\d*|0[0-7]*|0x[\da-f]+)(?:\.([1-9]\d*|0[0-7]*|0x[\da-f]+))?(?:\.([1-9]\d*|0[0-7]*|0x[\da-f]+))?(?:\.([1-9]\d*|0[0-7]*|0x[\da-f]+))?$/i );
+    if (!IP) { return false; }
+    IP[0] = 0;
+    for (i = 1; i < 5; i += 1) {
+        IP[0] += !!((IP[i] || '').length);
+        IP[i] = parseInt(IP[i]) || 0;
+    }
+    IP.push(256, 256, 256, 256);
+    IP[4 + IP[0]] *= Math.pow(256, 4 - IP[0]);
+    if (IP[1] >= IP[5] || IP[2] >= IP[6] || IP[3] >= IP[7] || IP[4] >= IP[8]) { return false; }
+    return IP[1] * (IP[0] === 1 || 16777216) + IP[2] * (IP[0] <= 2 || 65536) + IP[3] * (IP[0] <= 3 || 256) + IP[4] * 1;
+}
+
+/*
+    Transforms a given netmask with format X.X.X.X into a netmask with format /X
+*/
+
+function netmask2netplan(mask)
+{
+    number = ip2long(mask);
+    base = ip2long('255.255.255.255');
+    return 32-Math.log((number ^ base)+1, 2);
+}
+
 function createNetmaskAddr(bitCount) {
   var mask=[];
   for(i=0;i<4;i++) {
@@ -33,8 +59,23 @@ function loadSummary(strInterface) {
 function getAllInterfaces() {
     $.get('ajax/networking/get_all_interfaces.php',function(data){
         jsonData = JSON.parse(data);
-        $.each(jsonData,function(ind,value){
-            loadSummary(value)
+        $.each(jsonData,function(ind,int){
+            loadSummary(int)
+            // Set on change functions for DHCP and Static IP radio buttons in networking tab
+            $('#'+int+'-dhcp').change(function() {
+                $('#'+int+'-ipaddress').prop("disabled", true);
+                $('#'+int+'-netmask').prop("disabled", true);
+                $('#'+int+'-gateway').prop("disabled", true);
+                $('#'+int+'-dnssvr').prop("disabled", true);
+                $('#'+int+'-dnssvralt').prop("disabled", true);
+            })
+            $('#'+int+'-static').change(function() {
+                $('#'+int+'-ipaddress').prop("disabled", false);
+                $('#'+int+'-netmask').prop("disabled", false);
+                $('#'+int+'-gateway').prop("disabled", false);
+                $('#'+int+'-dnssvr').prop("disabled", false);
+                $('#'+int+'-dnssvralt').prop("disabled", false);
+            })
         });
     });
 }
@@ -60,7 +101,7 @@ function loadCurrentSettings(strInterface) {
         }
         else {
             $('#'+int+'-static').click();
-            $('#'+int+'-nofailover').click();
+            //$('#'+int+'-nofailover').click();
             for (let addr of br["addresses"]) {
                 var arrIPNetmask = addr.split('/');
                 $('#'+int+'-ipaddress').val(arrIPNetmask[0]);
@@ -74,6 +115,7 @@ function loadCurrentSettings(strInterface) {
 }
 
 function saveNetworkSettings(int) {
+    /*
     var frmInt = $('#frm-'+int).find(':input');
     var arrFormData = {};
     $.each(frmInt,function(i3,v3){
@@ -88,9 +130,66 @@ function saveNetworkSettings(int) {
         var jsonData = JSON.parse(data);
         $('#msgNetworking').html(msgShow(jsonData['return'],jsonData['output']));
     });
+    */
 }
 
-function applyNetworkSettings() {
+function applyNetworkSettings(strInterface) {
+    // Get current configuration as JSON
+    var jsonData;
+    $.post('ajax/networking/get_int_config.php',{interface:strInterface},function(data){
+        jsonData = JSON.parse(data);
+    });
+    var int = strInterface;
+    var br = jsonData["output"]["network"]["bridges"][int];
+    var confirm_msg = "A reboot is needed to apply a new network configuration. Do you wish to continue?";
+    var apply;
+    if ($('#'+int+'-dhcp').prop("checked")) {
+        // If dhcp, we're good to go, change json data and ask for confirmation to write to file
+        br["dhcp4"] = true;
+        delete br["addresses"];
+        delete br["gateway4"];
+        delete br["nameservers"];
+        apply = confirm(confirm_msg);
+    }
+    else {
+        // If static configuration, we need to check that all required inputs are filled (only dns2 is optional)
+        if (!$('#'+int+'-ipaddress').val() || !$('#'+int+'-netmask').val() || !$('#'+int+'-gateway').val() || !$('#'+int+'-dnssvr').val()) {
+            alert();
+            return;
+        }
+        // If everything alright
+        if (br["dhcp4"]) {
+            delete br["dhcp4"];
+        }
+        var ips = []; // Netplan uses an array of ip addresses, but we will only allow the user to establish one
+        ips.push($('#'+int+'-ipaddress').val() + "/" + netmask2netplan($('#'+int+'-netmask').val()));
+        br["addresses"] = ips;
+        br["gateway4"] = $('#'+int+'-gateway').val();
+        var nameservers = [];
+        nameservers.push($('#'+int+'-dnssvr').val())
+        if ($('#'+int+'-dnssvralt').val()) {
+            nameservers.push($('#'+int+'-dnssvralt').val())
+        }
+        br["nameservers"]["addresses"] = nameservers;
+        apply = confirm(confirm_msg);
+    }
+    
+    // Send a POST through Ajax to apply changes with a php script.
+
+    if (apply) {
+        $.post('ajax/networking/save_int_config.php',{new_config:jsonData},function(data){
+            if (!data["return"]) {
+                alert("Restarting device...")
+            }
+            else {
+                alert("Failed to apply changes.")
+            }
+        });
+        
+        //TODO apply configuration
+        
+    }
+    /*
     var int = $(this).data('int');
     arrFormData = {};
     arrFormData['generate'] = '';
@@ -98,6 +197,7 @@ function applyNetworkSettings() {
         var jsonData = JSON.parse(data);
         $('#msgNetworking').html(msgShow(jsonData['return'],jsonData['output']));
     });
+    */
 }
 
 $(document).on("click", ".js-add-dhcp-static-lease", function(e) {
@@ -133,8 +233,10 @@ function setupBtns() {
         saveNetworkSettings(int);
     });
     $('.intapply').click(function(){
-        applyNetworkSettings();
+        var int = $(this).data('int');
+        applyNetworkSettings(int);
     });
+    $("")
 }
 
 function setCSRFTokenHeader(event, xhr, settings) {
@@ -318,7 +420,7 @@ $(window).on("load resize",function(e) {
         if (getCookie('sidebarToggled') == 'false') {
             $('.sidebar').removeClass('toggled');
         }
-    }
+    }    
 });
 
 // Adds active class to current nav-item

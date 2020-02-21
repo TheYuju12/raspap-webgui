@@ -105,7 +105,7 @@ $ifaceStatus = $wlan0up ? "up" : "down";
                   </table>
                   <?php if (sizeof($clients) >2) : ?>
                       <div class="col-lg-12 float-right">
-                        <a class="btn btn-outline-info" role="button" href="index.php?page=dhcpd_conf"><?php echo _("More");?>  <i class="fas fa-chevron-right"></i></a>
+                        <a class="btn btn-outline-info" role="button" href="index.php?page=connected_devices"><?php echo _("More");?>  <i class="fas fa-chevron-right"></i></a>
                       </div>
                   <?php elseif (sizeof($clients) ==0) : ?>
                       <div class="col-lg-12 mt-3"><?php echo _("No connected devices");?></div>

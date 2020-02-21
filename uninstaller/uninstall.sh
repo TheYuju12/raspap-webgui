@@ -6,8 +6,11 @@
 
 echo ""
 echo "[INFO] PREPARING TO UNINSTALL not-so-DumbAP..."
+sleep 2
+
 echo ""
-sleep 3
+echo "[INFO] Removing software..."
+sleep 2
 
 input="/etc/raspap/uninstaller/pkgs_to_uninstall"
 restore_netplan=1
@@ -17,7 +20,8 @@ if [ -f $input ]; then
         if [ "$pkg" = "netplan.io" ]; then
             restore_netplan=0
         fi
-        echo "[INFO] Removing $pkg..."
+        echo ""
+        echo "[INFO] Purging $pkg..."
         echo ""
         apt purge --auto-remove $pkg -y
     done < "$input"
@@ -27,7 +31,7 @@ echo "[INFO] Removing raspap service..."
 systemctl disable raspap.service
 rm -f /lib/systemd/system/raspap.service
 # Remove all remaining files we used
-echo "[INFO] Removing remaining files..."
+echo "[INFO] Erasing remaining files..."
 rm -rf /var/www/html
 rm -rf /etc/raspap
 rm -rf /etc/netplan
