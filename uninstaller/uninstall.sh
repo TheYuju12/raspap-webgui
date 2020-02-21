@@ -3,9 +3,15 @@
 # Get root access.
 [ "$UID" -eq 0 ] || exec sudo bash "$0" "$@"
 # Purge the installed packages one by one
+
+echo ""
+echo "[INFO] PREPARING TO UNINSTALL not-so-DumbAP..."
+echo ""
+sleep 3
+
 input="/etc/raspap/uninstaller/pkgs_to_uninstall"
 restore_netplan=1
-if [ ! -f $input ]; then
+if [ -f $input ]; then
     while IFS= read -r pkg
     do
         if [ "$pkg" = "netplan.io" ]; then
