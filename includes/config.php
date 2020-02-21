@@ -1,5 +1,5 @@
 <?php
-etc/
+
 define("CONFIG_NETWORK_FILENAME", "network-config");
 define('NETPLAN_CONFIG_DIR', "/etc/netplan/");
 define('NETPLAN_CONFIG_FILE', NETPLAN_CONFIG_DIR . CONFIG_NETWORK_FILENAME . ".yaml");
