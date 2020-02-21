@@ -98,7 +98,7 @@ $ifaceStatus = $wlan0up ? "up" : "down";
                         <tr>
                           <td><?php echo htmlspecialchars("Unknown", ENT_QUOTES) ?></td> <!-- Hostname goes here -->
                           <td><?php echo htmlspecialchars("Unknown", ENT_QUOTES) ?></td> <!-- IP goes here -->
-                          <td><?php echo htmlspecialchars($client["mac"], ENT_QUOTES) ?></td>
+                          <td><?php echo htmlspecialchars($client, ENT_QUOTES) ?></td> <!-- MAC goes here -->
                         </tr>
                         <?php endforeach ?>
                     </tbody>
