@@ -137,6 +137,9 @@ if [ $return_code -ne 0 ]; then
 fi
 # Move all network-related config files to where they belong
 mv /var/www/html/config/default_hostapd /etc/default/hostapd
+if [ -d "/etc/hostapd" ]; then
+    mkdir /etc/hostapd
+fi
 mv /var/www/html/config/hostapd.conf /etc/hostapd/
 mv /var/www/html/config/network-config.yaml /etc/netplan/
 

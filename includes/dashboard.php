@@ -1,7 +1,7 @@
 <?php
 
 require_once 'config.php';
-require 'functions.php';
+require_once 'functions.php';
 
 /**
  * Show dashboard page.

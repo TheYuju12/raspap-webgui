@@ -10,9 +10,9 @@ if ($arrHostapdConf['WifiAPEnable'] == 1) {
 $filename = RASPI_CONFIG_NETWORKING . "/connected_macs";
 exec("iw dev wlan0 station dump | grep Station | cut -d ' ' -f 2 > " . $filename);
 $file_lines = file($filename);
-$clients = array()
+$clients = array();
 foreach ($file_lines as $line) {
-    array_push($clients, $line)
+    array_push($clients, $line);
 }
 /*
 // Parse json file and operate with it 

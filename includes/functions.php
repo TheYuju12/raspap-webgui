@@ -332,7 +332,7 @@ function deleteCache($key)
         unlink($cacheKey);
     }
 }
-
+/*
 function cache($key, $callback)
 {
     if (hasCache($key)) {
@@ -343,3 +343,4 @@ function cache($key, $callback)
         return $data;
     }
 }
+*/
