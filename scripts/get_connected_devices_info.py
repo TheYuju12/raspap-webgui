@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-from python_env import default_path # Import common variables
 import sys
 import json
 

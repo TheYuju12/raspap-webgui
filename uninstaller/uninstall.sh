@@ -5,7 +5,7 @@
 # Purge the installed packages one by one
 input="/etc/rasp/uninstaller/pkgs_to_uninstall"
 restore_netplan=1
-if [ ! -f input ]; then
+if [ ! -f $input ]; then
     while IFS= read -r pkg
     do
         if [ "$pkg" = "netplan.io" ]; then
@@ -27,14 +27,13 @@ rm -rf /etc/raspap
 rm -rf /etc/netplan
 rm -rf /etc/hostapd
 rm -f /etc/default/hostapd
-rm -f /etc/cron.hourly/periodic_arp
 rm -f /etc/sudoers.d/dumbap
 # Undo our changes in dhcpcd.conf
 echo "[INFO] Restoring network configuration..."
 sed -i '/denyinterfaces eth0/d' /etc/dhcpcd.conf
 sed -i '/denyinterfaces wlan0/d' /etc/dhcpcd.conf
 # Restore network it if was netplan based
-if [ $restore_netplan -e 1 ]; then
+if [ $restore_netplan -ne 0 ]; then
     mkdir /etc/netplan
     mv /etc/netplan_bak/* /etc/netplan/
     rmdir /etc/netplan_bak

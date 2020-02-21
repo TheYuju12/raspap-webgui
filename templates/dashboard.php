@@ -7,14 +7,21 @@ if ($arrHostapdConf['WifiAPEnable'] == 1) {
 }
 // A bash script will manage the logic to retrieve a list of devices connected to our AP through a json file.
 // Simply name the file, execute the script and parse the file (which should be created by the bash script)
-$jsonFile = RASPI_CONFIG_NETWORKING . "/connected_devices.json";
-shell_exec(RASPI_SCRIPTS . "/retrieve_connected_devices.sh " . $jsonFile);
+$filename = RASPI_CONFIG_NETWORKING . "/connected_macs";
+exec("iw dev wlan0 station dump | grep Station | cut -d ' ' -f 2 > " . $filename);
+$file_lines = file($filename);
+$clients = array()
+foreach ($file_lines as $line) {
+    array_push($clients, $line)
+}
+/*
 // Parse json file and operate with it 
 $jsonContent = file_get_contents($jsonFile, true);
 $jsonData = json_decode($jsonContent, true);
 debug_to_console(json_encode($jsonData));
 $clients = $jsonData["output"];
-//exec('cat '.RASPI_DNSMASQ_LEASES.'| grep -E $(arp -i '.$client_iface.' -n | grep -oE "(([0-9]|[a-f]|[A-F]){2}:){5}([0-9]|[a-f]|[A-F]){2}" | tr "\n" "\|" | sed "s/.$//")', $clients);
+python3 /etc/raspap/scripts/get_connected_devices.py dest_file "/etc/raspap/networking/connected_macs" "/etc/raspap/networking/all_macs" "/etc/raspap/networking/all_ips" "/etc/raspap/networking/all_hostnames"
+*/
 $ifaceStatus = $wlan0up ? "up" : "down";
 ?>
 <div class="row">
@@ -87,10 +94,10 @@ $ifaceStatus = $wlan0up ? "up" : "down";
                     </thead>
                     <tbody>
                         <?php foreach ($clients as $client) : ?>
-                            <!--?php $props = explode(' ', $client) ?> -->
+                            <!-- TODO: an option to ask for more info -->
                         <tr>
-                          <td><?php echo htmlspecialchars($client["name"], ENT_QUOTES) ?></td>
-                          <td><?php echo htmlspecialchars($client["ip"], ENT_QUOTES) ?></td>
+                          <td><?php echo htmlspecialchars("Unknown", ENT_QUOTES) ?></td> <!-- Hostname goes here -->
+                          <td><?php echo htmlspecialchars("Unknown", ENT_QUOTES) ?></td> <!-- IP goes here -->
                           <td><?php echo htmlspecialchars($client["mac"], ENT_QUOTES) ?></td>
                         </tr>
                         <?php endforeach ?>

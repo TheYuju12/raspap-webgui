@@ -95,13 +95,11 @@ mv /var/www/html/raspap.php /etc/raspap/
 # Move uninstall stuff to correct location
 mv /var/www/html/uninstaller /etc/raspap/
 if [ -f pkgs_to_uninstall ]; then
-    mv pkgs_to_uninstall etc/uninstaller/
+    mv pkgs_to_uninstall /etc/raspap/uninstaller/
 fi
 # Move scripts to proper location and set executable permissions to them
 mv /var/www/html/scripts /etc/raspap/
 chmod +x /etc/raspap/scripts/*
-# Hourly task: arp to discover neighbours and fill caches
-mv /etc/raspap/scripts/periodic_arp /etc/cron.hourly
 # Create folder for network related files
 mkdir /etc/raspap/networking
 # Set ownership of /etc/raspap
@@ -119,9 +117,8 @@ systemctl enable raspap.service
 
 # Set needed permissions in sudoers file
 echo "www-data ALL=(ALL) NOPASSWD:/sbin/reboot" > /etc/sudoers.d/dumbap
-echo "www-data ALL=(ALL) NOPASSWD:/etc/raspap/scripts/retrieve_connected_devices.sh" >> /etc/sudoers.d/dumbap
 echo "www-data ALL=(ALL) NOPASSWD:/etc/raspap/scripts/update_network_config.sh" >> /etc/sudoers.d/dumbap
-echo "www-data ALL=(ALL) NOPASSWD:/etc/cron/hourly/periodic_arp" >> /etc/sudoers.d/dumbap
+echo "www-data ALL=(ALL) NOPASSWD:/etc/raspap/do_arp.sh" >> /etc/sudoers.d/dumbap
 
 echo "[INFO] Configuring network..."
 
