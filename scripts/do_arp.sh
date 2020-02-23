@@ -1,11 +1,5 @@
 #!/bin/bash
 
-# This script is meant to be executed periodically, in order to know our neighbours and update cache files used by get_connected_devices.py.
-# /etc/cron.hourly/ may be a good place.
-
-# Root access
-[ "$UID" -eq 0 ] || exec sudo bash "$0" "$@"
-
 # TODO: find a way to do this no matter the network ip
 # this may be useful: $ ifconfig -a br0 | head -2 | tail +2
 

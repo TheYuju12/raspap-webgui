@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from python_env import default_path, netplan_config_filename # Import common variables
-import yaml
+import oyaml as yaml
 import sys
 import json
 
@@ -21,7 +21,7 @@ def json_to_yaml(path):
     with open(path, 'r') as json_input, open(default_path + netplan_config_filename + ".yaml", "w") as yaml_out:
         try:
             json_object = json.load(json_input)
-            yaml.dump(json_object, yaml_out)
+            yaml.dump(json_object, yaml_out, default_flow_style=False)
         except yaml.YAMLError as exc:
             print(exc)
 

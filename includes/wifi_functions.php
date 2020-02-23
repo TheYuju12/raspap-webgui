@@ -1,6 +1,6 @@
 <?php
 
-require_once 'functions.php';
+require 'functions.php';
 
 function knownWifiStations(&$networks)
 {

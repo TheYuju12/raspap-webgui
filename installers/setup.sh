@@ -26,7 +26,7 @@ apt update
 # We're gonna install only those packages that are not already installed and store the names of those packages in a file, 
 # so when the uninstaller is ran it will be able to only remove the packages that were installed by this script.
 
-needed_pkgs=(netplan.io hostapd git lighttpd php7.1-cgi python3 python-pip vnstat)
+needed_pkgs=(netplan.io hostapd git lighttpd php7.1-cgi python3 python3-pip vnstat)
 declare -a pkgs_to_install
 
 for i in "${needed_pkgs[@]}"
@@ -53,8 +53,8 @@ if [ ${#pkgs_to_install[@]} -ne 0 ]; then
     done
 fi
 
-# Install yaml support for python
-pip install pyyaml
+# Install yaml support for python (using oyaml because it uses ordered dicts)
+pip install oyaml
 
 ##########################
 # Configure new packages #
@@ -118,7 +118,7 @@ systemctl enable raspap.service
 # Set needed permissions in sudoers file
 echo "www-data ALL=(ALL) NOPASSWD:/sbin/reboot" > /etc/sudoers.d/dumbap
 echo "www-data ALL=(ALL) NOPASSWD:/etc/raspap/scripts/update_network_config.sh" >> /etc/sudoers.d/dumbap
-echo "www-data ALL=(ALL) NOPASSWD:/etc/raspap/do_arp.sh" >> /etc/sudoers.d/dumbap
+echo "www-data ALL=(ALL) NOPASSWD:/etc/raspap/scripts/do_arp.sh" >> /etc/sudoers.d/dumbap
 
 echo "[INFO] Configuring network..."
 

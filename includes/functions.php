@@ -3,11 +3,7 @@
 /* Function to log to js console */ 
 
 function debug_to_console($data) {
-    $output = $data;
-    if (is_array($output))
-        $output = implode(',', $output);
-
-    echo "<script>console.log('Debug: " . $output . "' );</script>";
+    echo "<script>console.log('Debug: " . $data . "' );</script>";
 }
 
 /* Functions for Networking */
@@ -332,7 +328,7 @@ function deleteCache($key)
         unlink($cacheKey);
     }
 }
-/*
+
 function cache($key, $callback)
 {
     if (hasCache($key)) {
@@ -343,4 +339,3 @@ function cache($key, $callback)
         return $data;
     }
 }
-*/

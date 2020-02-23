@@ -220,3 +220,7 @@ canvas#divDBChartBandwidthhourly {
   font-weight: bold;
   display: none;
 }
+
+.form-control {
+  color: #131313;
+}

@@ -93,8 +93,8 @@
                     <input type="text" class="form-control" id="<?php echo $if_quoted ?>-dnssvralt" placeholder="0.0.0.0">
 		  </div>
                   <?php if (!RASPI_MONITOR_ENABLED): ?>
-                      <a href="#" class="btn btn-outline btn-primary intsave" data-int="<?php echo $if_quoted ?>"><?php echo _("Save settings") ?></a>
-		      <a href="#" class="btn btn-warning intapply" data-int="<?php echo $if_quoted ?>"><?php echo _("Apply settings") ?></a>
+                      <a href="#" class="btn btn-primary btn-outline intreset" data-int="<?php echo $if_quoted ?>"><?php echo _("Reset settings") ?></a>
+		                  <a href="#" class="btn btn-warning intapply" data-int="<?php echo $if_quoted ?>"><?php echo _("Apply settings") ?></a>
                   <?php endif ?>
                 </form>
 
@@ -105,7 +105,7 @@
 
         </div><!-- /.tab-content -->
       </div><!-- /.card-body -->
-      <div class="card-footer"><?php echo _("Information provided by /sys/class/net"); ?></div>
+      <div class="card-footer"><?php echo _("Information provided by ip and netplan"); ?></div>
     </div><!-- /.card -->
   </div><!-- /.col-lg-12 -->
 </div>

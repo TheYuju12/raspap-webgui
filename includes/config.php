@@ -4,7 +4,7 @@ define("CONFIG_NETWORK_FILENAME", "network-config");
 define('NETPLAN_CONFIG_DIR', "/etc/netplan/");
 define('NETPLAN_CONFIG_FILE', NETPLAN_CONFIG_DIR . CONFIG_NETWORK_FILENAME . ".yaml");
 
-define('RASPI_VERSION', '2.2');
+define('RASPI_VERSION', '1.0');
 define('RASPI_CONFIG', '/etc/raspap');
 define('RASPI_CONFIG_NETWORKING', RASPI_CONFIG.'/networking');
 define('RASPI_ADMIN_DETAILS', RASPI_CONFIG.'/raspap.auth');
@@ -17,7 +17,7 @@ define("RASPI_SCRIPTS", RASPI_CONFIG . "/scripts");
 // These are typical for default RPi installs. Modify if needed.
 define('RASPI_HOSTAPD_CONFIG', '/etc/hostapd/hostapd.conf');
 define('RASPI_DHCPCD_CONFIG', '/etc/dhcpcd.conf');
-//define('RASPI_WPA_SUPPLICANT_CONFIG', '/etc/wpa_supplicant/wpa_supplicant.conf');
+define('RASPI_WPA_SUPPLICANT_CONFIG', '/etc/wpa_supplicant/wpa_supplicant.conf');
 define('RASPI_HOSTAPD_CTRL_INTERFACE', '/var/run/hostapd');
 define('RASPI_WPA_CTRL_INTERFACE', '/var/run/wpa_supplicant');
 define('RASPI_OPENVPN_CLIENT_CONFIG', '/etc/openvpn/client/client.conf');

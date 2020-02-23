@@ -124,122 +124,105 @@ function loadCurrentSettings(strInterface) {
     });
 }
 
-function saveNetworkSettings(int) {
-    /*
-    var frmInt = $('#frm-'+int).find(':input');
-    var arrFormData = {};
-    $.each(frmInt,function(i3,v3){
-        if($(v3).attr('type') == 'radio') {
-		arrFormData[$(v3).attr('id')] = $(v3).prop('checked');
-    } else {
-	    arrFormData[$(v3).attr('id')] = $(v3).val();
-    }
-    });
-    arrFormData['interface'] = int;
-    $.post('ajax/networking/save_int_config.php',arrFormData,function(data){
-        var jsonData = JSON.parse(data);
-        $('#msgNetworking').html(msgShow(jsonData['return'],jsonData['output']));
-    });
-    */
+function resetNetworkSettings(int) {
+    loadCurrentSettings(int);
 }
 
 function applyNetworkSettings(strInterface) {
     // Get current configuration as JSON
     $.post('ajax/networking/get_int_config.php',{interface:strInterface},function(data){
-        jsonData = JSON.parse(data);
-    });
-    if (jsonData["return"]) {
-        console.log("Error executing ajax routine: ajax/networking/get_int_config.php.");
-        return;
-    }
-    delete jsonData["return"];
-    var int = strInterface;
-    var br = jsonData["output"]["network"]["bridges"][int];
-    var confirm_msg = "A reboot is needed to apply a new network configuration. Do you wish to continue?";
-    var apply;
-    if ($('#'+int+'-dhcp').prop("checked")) {
-        // If dhcp, we're good to go, change json data and ask for confirmation to write to file
-        br["dhcp4"] = true;
-        delete br["addresses"];
-        delete br["gateway4"];
-        delete br["nameservers"];
-        apply = confirm(confirm_msg);
-    }
-    else {
-        // If static configuration, we need to check that all required inputs are filled (only dns2 is optional)
-        var error = false;
-        if (!$('#'+int+'-ipaddress').val()) {
-            $('#'+int+'-ipaddress-empty').css("display", "inline");
-            error = true;
-        }
-        else {
-            $('#'+int+'-ipaddress-empty').css("display", "none");
-        }
-        if (!$('#'+int+'-netmask').val()) {
-            $('#'+int+'-netmask-empty').css("display", "inline");
-            error = true;
-        }
-        else {
-            $('#'+int+'-netmask-empty').css("display", "none");
-        }
-        if (!$('#'+int+'-gateway').val()) {
-            $('#'+int+'-gateway-empty').css("display", "inline");
-            error = true;
-        }
-        else {
-            $('#'+int+'-gateway-empty').css("display", "none");
-        }
-        if(!$('#'+int+'-dnssvr').val()) {
-            $('#'+int+'-dnssvr-empty').css("display", "inline");
-            error = true;
-        }
-        else {
-            $('#'+int+'-dnssvr-empty').css("display", "none");
-        }
-        if (error) {
+        var jsonData = JSON.parse(data);
+        if (jsonData["return"]) {
+            console.log("Error executing ajax routine: ajax/networking/get_int_config.php.");
             return;
         }
-        // If everything alright proceed
-        if (br["dhcp4"]) {
-            delete br["dhcp4"];
+        jsonData = jsonData["output"];
+        var int = strInterface;
+        var br = jsonData["network"]["bridges"][int];
+        var confirm_msg = "A reboot is needed to apply a new network configuration. Do you wish to continue?";
+        var apply;
+        if ($('#'+int+'-dhcp').prop("checked")) {
+            // If dhcp, we're good to go, change json data and ask for confirmation to write to file
+            br["dhcp4"] = true;
+            delete br["addresses"];
+            delete br["gateway4"];
+            delete br["nameservers"];
+            apply = confirm(confirm_msg);
         }
-        var ips = []; // Netplan uses an array of ip addresses, but we will only allow the user to establish one
-        ips.push($('#'+int+'-ipaddress').val() + "/" + netmask2netplan($('#'+int+'-netmask').val()));
-        br["addresses"] = ips;
-        br["gateway4"] = $('#'+int+'-gateway').val();
-        var nameservers = [];
-        nameservers.push($('#'+int+'-dnssvr').val())
-        if ($('#'+int+'-dnssvralt').val()) {
-            nameservers.push($('#'+int+'-dnssvralt').val())
-        }
-        br["nameservers"]["addresses"] = nameservers;
-        apply = confirm(confirm_msg);
-    }
-    
-    // Send a POST through Ajax to apply changes with a php script.
-
-    if (apply) {
-        $.post('ajax/networking/save_int_config.php',{new_config:jsonData},function(data){
-            if (!data["return"]) {
-                alert("Restarting device...")
+        else {
+            // If static configuration, we need to check that all required inputs are filled (only dns2 is optional)
+            var error = false;
+            if (!$('#'+int+'-ipaddress').val()) {
+                $('#'+int+'-ipaddress-empty').css("display", "inline");
+                error = true;
             }
             else {
-                alert("Failed to apply changes.")
+                $('#'+int+'-ipaddress-empty').css("display", "none");
             }
-        });
-        
-        //TODO apply configuration
-        
-    }
-    /*
-    var int = $(this).data('int');
-    arrFormData = {};
-    arrFormData['generate'] = '';
-    $.post('ajax/networking/gen_int_config.php',arrFormData,function(data){
-        var jsonData = JSON.parse(data);
-        $('#msgNetworking').html(msgShow(jsonData['return'],jsonData['output']));
+            if (!$('#'+int+'-netmask').val()) {
+                $('#'+int+'-netmask-empty').css("display", "inline");
+                error = true;
+            }
+            else {
+                $('#'+int+'-netmask-empty').css("display", "none");
+            }
+            if (!$('#'+int+'-gateway').val()) {
+                $('#'+int+'-gateway-empty').css("display", "inline");
+                error = true;
+            }
+            else {
+                $('#'+int+'-gateway-empty').css("display", "none");
+            }
+            if(!$('#'+int+'-dnssvr').val()) {
+                $('#'+int+'-dnssvr-empty').css("display", "inline");
+                error = true;
+            }
+            else {
+                $('#'+int+'-dnssvr-empty').css("display", "none");
+            }
+            if (error) {
+                return;
+            }
+            // If everything alright proceed
+            if (br["dhcp4"]) {
+                delete br["dhcp4"];
+            }
+            var ips = []; // Netplan uses an array of ip addresses, but we will only allow the user to establish one
+            ips.push($('#'+int+'-ipaddress').val() + "/" + netmask2netplan($('#'+int+'-netmask').val()));
+            br["addresses"] = ips;
+            br["gateway4"] = $('#'+int+'-gateway').val();
+            var dns_addresses = [];
+            dns_addresses.push($('#'+int+'-dnssvr').val())
+            if ($('#'+int+'-dnssvralt').val()) {
+                dns_addresses.push($('#'+int+'-dnssvralt').val())
+            }
+            const nameserver = {
+                addresses: []
+            }
+            ns = Object.create(nameserver);
+            ns.addresses = dns_addresses;
+            br["nameservers"] = ns;
+            apply = confirm(confirm_msg);
+        }
+        // Send a POST through Ajax to apply changes with a php script.
+
+        if (apply) {
+            $.post('ajax/networking/save_int_config.php', {new_config:JSON.stringify(jsonData)}, function(data) {
+                data = JSON.parse(data);
+                console.log(data);
+                if (!data["return"]) {
+                    alert("Restarting device ...");
+                    $.post("ajax/system/reboot.php", "", function(data) {
+                        // System will reboot
+                    });
+                }
+                else {
+                    alert("Failed to apply changes.");
+                }
+                
+            });
+        }
     });
-    */
 }
 
 $(document).on("click", ".js-add-dhcp-static-lease", function(e) {
@@ -270,15 +253,14 @@ $(document).on("submit", ".js-dhcp-settings-form", function(e) {
 
 function setupBtns() {
     $('#btnSummaryRefresh').click(function(){getAllInterfaces();});
-    $('.intsave').click(function(){
+    $('.intreset').click(function(){
         var int = $(this).data('int');
-        saveNetworkSettings(int);
+        resetNetworkSettings(int);
     });
     $('.intapply').click(function(){
         var int = $(this).data('int');
         applyNetworkSettings(int);
     });
-    $("")
 }
 
 function setCSRFTokenHeader(event, xhr, settings) {
