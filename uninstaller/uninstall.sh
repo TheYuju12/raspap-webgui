@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# Get root access.
-[ "$UID" -eq 0 ] || exec sudo bash "$0" "$@"
+# Check if root.
+if [ "$EUID" -ne 0 ]
+  then echo "Root access is needed to perform this task. Tip: use 'sudo' to run the uninstaller."
+  exit 1
+fi
 # Purge the installed packages one by one
 
 echo ""
