@@ -1,5 +1,5 @@
 [Unit]
-Description=RaspAP daemon
+Description=DumbAP daemon
 After=multi-user.target
 
 [Service]

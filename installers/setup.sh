@@ -111,9 +111,9 @@ mv /var/www/html/installers/service*.sh /etc/raspap/hostapd
 # Set ownership and permissions for logging and service control scripts.
 chown -c root:www-data /etc/raspap/hostapd/*.sh 
 chmod 750 /etc/raspap/hostapd/*.sh 
-# Move the raspap service to the correct location and enable it.
-mv /var/www/html/installers/raspap.service /lib/systemd/system
-systemctl enable raspap.service
+# Move the dumbap service to the correct location and enable it.
+mv /var/www/html/installers/dumbap.service /lib/systemd/system
+systemctl enable dumbap.service
 
 # Set needed permissions in sudoers file
 echo "www-data ALL=(ALL) NOPASSWD:/sbin/reboot" > /etc/sudoers.d/dumbap
@@ -147,7 +147,6 @@ mv /var/www/html/config/network-config.yaml /etc/netplan/
 # Apply netplan changes and reboot #
 ####################################
 
-# Write this before adding eth0 to bridge because when we do that connection will be lost, and we want the user to know what is happening.
 echo "[INFO] Rebooting..." 
 # netplan is gonna throw an error but it will work so we just redirect error output to /dev/null 
 netplan apply 2> /dev/null
