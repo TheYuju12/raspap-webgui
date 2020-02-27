@@ -135,7 +135,7 @@ mv /var/www/html/config/network-config.yaml /etc/netplan/
 # Get current dns since networkd seems to be dumb
 current_dns=$(cat /etc/resolv.conf | tail +2 | xargs | cut -d " " -f 2)
 # Set this dns as the default one in resolvconf.conf
-echo "name_server=current_dns" >> /etc/resolvconf.conf
+echo "name_server=$current_dns" >> /etc/resolvconf.conf
 # Setup dnsmasq and forwarding
 echo "[INFO] Finishing installation"
 
