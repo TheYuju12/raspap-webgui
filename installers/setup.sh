@@ -152,6 +152,7 @@ iptables -t nat -A  POSTROUTING -o eth0 -j MASQUERADE
 sh -c "iptables-save > /etc/iptables.ipv4.nat"
 mv /etc/rc.local /etc/rc.local.bak
 cat /etc/rc.local.bak | head -n -1 > /etc/rc.local
+chmod +x /etc/rc.local 
 echo "iptables-restore < /etc/iptables.ipv4.nat" >> /etc/rc.local
 echo "exit 0" >> /etc/rc.local
 
