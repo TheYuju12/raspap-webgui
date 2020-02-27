@@ -26,7 +26,7 @@ apt update
 # We're gonna install only those packages that are not already installed and store the names of those packages in a file, 
 # so when the uninstaller is ran it will be able to only remove the packages that were installed by this script.
 
-needed_pkgs=(netplan.io hostapd git lighttpd php7.1-cgi python3 python3-pip vnstat dnsmasq dnsutils)
+needed_pkgs=(netplan.io hostapd git lighttpd php7.1-cgi python3 python3-pip vnstat dnsmasq)
 declare -a pkgs_to_install
 
 for i in "${needed_pkgs[@]}"
@@ -133,7 +133,7 @@ fi
 mv /var/www/html/config/hostapd.conf /etc/hostapd/
 mv /var/www/html/config/network-config.yaml /etc/netplan/
 # Get current dns since networkd seems to be dumb
-current_dns=dig | grep SERVER: | awk -F# '{ print $1 }' | awk -F: '{ print $2 }' | xargs
+current_dns=$(cat /etc/resolv.conf | tail +2 | xargs | cut -d " " -f 2)
 # Set this dns as the default one in resolvconf.conf
 echo "name_server=current_dns" >> /etc/resolvconf.conf
 # Setup dnsmasq and forwarding
