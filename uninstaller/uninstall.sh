@@ -51,14 +51,14 @@ rm -f /etc/sudoers.d/dumbap
 echo "[INFO] Restoring network configuration..."
 # Restore dhcpcd.conf
 mv /etc/dhcpcd.conf.bak /etc/dhcpcd.conf
-# Undo dns changes
-cat /etc/resolvconf.conf | head -n -1 > /etc/resolvconf.conf
 # Restore network it if was netplan based
 if [ $restore_netplan -ne 0 ]; then
     mkdir /etc/netplan
     mv /etc/netplan_bak/* /etc/netplan/
     rmdir /etc/netplan_bak
 fi
+# Restore rc.local so iptables rules do not apply anymore
+mv /etc/rc.local.bak /etc/local
 
 echo "[INFO] Rebooting..."
 reboot

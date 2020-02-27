@@ -132,10 +132,10 @@ if [ ! -d "/etc/hostapd" ]; then
 fi
 mv /var/www/html/config/hostapd.conf /etc/hostapd/
 mv /var/www/html/config/network-config.yaml /etc/netplan/
-# Get current dns since networkd seems to be dumb
-current_dns=$(cat /etc/resolv.conf | tail +2 | xargs | cut -d " " -f 2)
+# Since networkd seems to be dumb and does not use dhcp-provided dns, we'll use google dns
+dns="8.8.8.8"
 # Set this dns as the default one in resolvconf.conf
-echo "name_servers=$current_dns" >> /etc/resolvconf.conf
+echo "name_servers=$dns" >> /etc/resolvconf.conf
 # Setup dnsmasq and forwarding
 echo "[INFO] Finishing installation"
 
@@ -150,7 +150,8 @@ sed -i "s/#net.ipv4.ip_forward=1.*/net.ipv4.ip_forward=1/g" /etc/sysctl.conf
 iptables -t nat -A  POSTROUTING -o eth0 -j MASQUERADE
 # persist iptables rules 
 sh -c "iptables-save > /etc/iptables.ipv4.nat"
-cat /etc/rc.local | head -n -1 > /etc/rc.local
+mv /etc/rc.local / /etc/rc.local.bak
+cat /etc/rc.local.bak | head -n -1 > /etc/rc.local
 echo "iptables-restore < /etc/iptables.ipv4.nat" >> /etc/rc.local
 echo "exit 0" >> /etc/rc.local
 
