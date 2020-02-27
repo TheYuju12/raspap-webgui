@@ -1,14 +1,13 @@
 network:
-  version: 2
   renderer: networkd
+  version: 2
   ethernets:
     eth0:
+      dhcp4: true
+  wifis:
+    wlan0:
       dhcp4: false
-  bridges:
-    br0:
-      interfaces:
-        - eth0
-      addresses: [192.168.0.120/24]
-      gateway4: 192.168.0.1
-      nameservers:
-        addresses: [192.168.0.1, 8.8.8.8]
+      addresses: [10.9.9.1/24]
+      access-points:
+        "dumbap":
+          password: ""

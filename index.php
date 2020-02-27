@@ -220,7 +220,7 @@ if ($_COOKIE['sidebarToggled'] == 'true' ) {
             DisplayDashboard($extraFooterScripts);
             break;
         case "dhcpd_conf":
-            //DisplayDHCPConfig();
+            DisplayDHCPConfig();
             break;
         case "wpa_conf":
             DisplayWPAConfig();

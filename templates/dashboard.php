@@ -5,8 +5,11 @@ if ($arrHostapdConf['WifiAPEnable'] == 1) {
 } else {
     $client_iface = RASPI_WIFI_CLIENT_INTERFACE;
 }
+exec('cat '.RASPI_DNSMASQ_LEASES.'| grep -E $(arp -i '.$client_iface.' -n | grep -oE "(([0-9]|[a-f]|[A-F]){2}:){5}([0-9]|[a-f]|[A-F]){2}" | tr "\n" "\|" | sed "s/.$//")', $clients);
+$ifaceStatus = $wlan0up ? "up" : "down";
 // A bash script will manage the logic to retrieve a list of devices connected to our AP through a json file.
 // Simply name the file, execute the script and parse the file (which should be created by the bash script)
+/*
 $filename = RASPI_CONFIG_NETWORKING . "/connected_macs";
 exec("iw dev wlan0 station dump | grep Station | cut -d ' ' -f 2 > " . $filename);
 $file_lines = file($filename);
@@ -14,6 +17,7 @@ $clients = array();
 foreach ($file_lines as $line) {
     array_push($clients, $line);
 }
+*/
 /*
 // Parse json file and operate with it 
 $jsonContent = file_get_contents($jsonFile, true);

@@ -26,7 +26,7 @@ apt update
 # We're gonna install only those packages that are not already installed and store the names of those packages in a file, 
 # so when the uninstaller is ran it will be able to only remove the packages that were installed by this script.
 
-needed_pkgs=(netplan.io hostapd git lighttpd php7.1-cgi python3 python3-pip vnstat)
+needed_pkgs=(netplan.io hostapd git lighttpd php7.1-cgi python3 python3-pip vnstat dnsmasq dns-utils)
 declare -a pkgs_to_install
 
 for i in "${needed_pkgs[@]}"
@@ -120,28 +120,38 @@ echo "www-data ALL=(ALL) NOPASSWD:/sbin/reboot" > /etc/sudoers.d/dumbap
 echo "www-data ALL=(ALL) NOPASSWD:/etc/raspap/scripts/update_network_config.sh" >> /etc/sudoers.d/dumbap
 echo "www-data ALL=(ALL) NOPASSWD:/etc/raspap/scripts/do_arp.sh" >> /etc/sudoers.d/dumbap
 
-echo "[INFO] Configuring network..."
+# Configure network to use netplan
+echo "[INFO] Configuring networking..."
 
-# Deny eth0 and wlan0 in /etc/dhcpcd.conf so it does not get any other address (it seems that doing "dhcp4: false" is not good enough and it gets an address with no connection)
-cat /etc/dhcpcd.conf | grep -q "denyinterfaces eth0"
-return_code=$(echo $?)
-if [ $return_code -ne 0 ]; then
-    # Only edit file if eth0 is not already denied
-    echo "denyinterfaces eth0" >> /etc/dhcpcd.conf
-fi
-cat /etc/dhcpcd.conf | grep -q "denyinterfaces wlan0"
-return_code=$(echo $?)
-if [ $return_code -ne 0 ]; then
-    # Only edit file if eth0 is not already denied
-    echo "denyinterfaces wlan0" >> /etc/dhcpcd.conf
-fi
 # Move all network-related config files to where they belong
+mv /var/www/html/config/dhcpcd.conf /etc/dhcpcd.conf
 mv /var/www/html/config/default_hostapd /etc/default/hostapd
 if [ -d "/etc/hostapd" ]; then
     mkdir /etc/hostapd
 fi
 mv /var/www/html/config/hostapd.conf /etc/hostapd/
 mv /var/www/html/config/network-config.yaml /etc/netplan/
+# Get current dns since networkd seems to be dumb
+current_dns=dig | grep SERVER: | awk -F# '{ print $1 }' | awk -F: '{ print $2 }' | xargs
+# Set this dns as the default one in resolvconf.conf
+echo "name_server=current_dns" >> /etc/resolvconf.conf
+# Setup dnsmasq and forwarding
+echo "[INFO] Finishing installation"
+
+# dnsmasq
+dhcp_min="10.9.9.10"
+dhcp_max="10.9.9.110"
+dhcp_netmask="255.255.255.0"
+dhcp_lease_time="12h"
+echo "dhcp-range=$dhcp_min,$dhcp_max,$dhcp_netmask,$dhcp_lease_time" > /etc/dnsmasq.conf
+# forwarding
+sed -i "s/#net.ipv4.ip_forward=1.*/net.ipv4.ip_forward=1/g" /etc/sysctl.conf
+iptables -t nat -A  POSTROUTING -o eth0 -j MASQUERADE
+# persist iptables rules 
+sh -c "iptables-save > /etc/iptables.ipv4.nat"
+cat /etc/rc.local | head -n -1 > /etc/rc.local
+echo "iptables-restore < /etc/iptables.ipv4.nat" >> /etc/rc.local
+echo "exit 0" >> /etc/rc.local
 
 ####################################
 # Apply netplan changes and reboot #

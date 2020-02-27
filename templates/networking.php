@@ -12,7 +12,7 @@
         <div id="msgNetworking"></div>
         <ul class="nav nav-tabs">
           <li role="presentation" class="nav-item"><a class="nav-link active" href="#summary" aria-controls="summary" role="tab" data-toggle="tab"><?php echo _("Summary"); ?></a></li>
-          <?php foreach ($interfaces as $if): ?>
+          <?php foreach ($configurable_interfaces as $if): ?>
           <?php $if_quoted = htmlspecialchars($if, ENT_QUOTES) ?>
           <li role="presentation" class="nav-item"><a class="nav-link" href="#<?php echo $if_quoted ?>" aria-controls="<?php echo $if_quoted ?>" role="tab" data-toggle="tab"><?php echo $if_quoted ?></a></li>
           <?php endforeach ?>
@@ -22,7 +22,7 @@
           <div role="tabpanel" class="tab-pane active" id="summary">
             <h4 class="mt-3"><?php echo _("Current settings") ?></h4>
             <div class="row">
-              <?php foreach ($interfaces as $if): ?>
+              <?php foreach ($all_interfaces as $if): ?>
               <?php $if_quoted = htmlspecialchars($if, ENT_QUOTES) ?>
               <div class="col-md-6 mb-3">
                 <div class="card">
@@ -41,7 +41,7 @@
             </div><!-- /.col-lg-12 -->
           </div><!-- /.tab-pane -->
 
-          <?php foreach ($interfaces as $if): ?>
+          <?php foreach ($configurable_interfaces as $if): ?>
           <?php $if_quoted = htmlspecialchars($if, ENT_QUOTES) ?>
           <div role="tabpanel" class="tab-pane fade in" id="<?php echo $if_quoted ?>">
             <div class="row">
