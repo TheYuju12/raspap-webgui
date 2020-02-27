@@ -124,9 +124,10 @@ echo "www-data ALL=(ALL) NOPASSWD:/etc/raspap/scripts/do_arp.sh" >> /etc/sudoers
 echo "[INFO] Configuring networking..."
 
 # Move all network-related config files to where they belong
+mv /etc/dhcpcd.conf /etc/dhcpcd.conf.bak
 mv /var/www/html/config/dhcpcd.conf /etc/dhcpcd.conf
-mv /var/www/html/config/default_hostapd /etc/default/hostapd
-if [ -d "/etc/hostapd" ]; then
+mv /var/www/html/config/default_hostapd /etc/default/hostapd    
+if [ ! -d "/etc/hostapd" ]; then
     mkdir /etc/hostapd
 fi
 mv /var/www/html/config/hostapd.conf /etc/hostapd/

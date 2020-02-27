@@ -44,12 +44,15 @@ rm -rf /var/www/html
 rm -rf /etc/raspap
 rm -rf /etc/netplan
 rm -rf /etc/hostapd
+rm -rf /etc/dnsmasq*
 rm -f /etc/default/hostapd
 rm -f /etc/sudoers.d/dumbap
-# Undo our changes in dhcpcd.conf
+# Restore network 
 echo "[INFO] Restoring network configuration..."
-sed -i '/denyinterfaces eth0/d' /etc/dhcpcd.conf
-sed -i '/denyinterfaces wlan0/d' /etc/dhcpcd.conf
+# Restore dhcpcd.conf
+mv /etc/dhcpcd.conf.bak /etc/dhcpcd.conf
+# Undo dns changes
+cat /etc/resolvconf.conf | head -n -1 > /etc/resolvconf.conf
 # Restore network it if was netplan based
 if [ $restore_netplan -ne 0 ]; then
     mkdir /etc/netplan
