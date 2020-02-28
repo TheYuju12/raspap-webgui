@@ -74,19 +74,30 @@ a.nav-link.active {
 }
 
 .btn-primary {
+  background-color: #d8224c;
+  color: white;
+  border-color: #d8224c;
+}
+.btn-primary:hover {
+  background-color: #c61931;
+  border-color: #c61931;
+}
+
+.btn-outline-primary {
   color: #d8224c;
   background-color: #fff;
   border-color: #d8224c;
+}
+.btn-outline-primary:hover {
+  background-color: #c61931;
+  border-color: #c61931;
 }
 
 .btn-warning {
   color: #333;
 }
 
-.btn-primary:hover {
-  background-color: #c61931;
-  border-color: #c61931;
-}
+
 
 i.fa.fa-bars {
   color: #d1d3e2;
@@ -216,6 +227,13 @@ canvas#divDBChartBandwidthhourly {
 
 .error {
   color: #f80107;
+  font-size: 1rem;
+  font-weight: bold;
+  display: none;
+}
+
+.success {
+  color: #00b445;
   font-size: 1rem;
   font-weight: bold;
   display: none;

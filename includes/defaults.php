@@ -27,6 +27,7 @@ $defaults = [
   'RASPI_LIGHTTPD_CONFIG' => '/etc/lighttpd/lighttpd.conf',
 
   // Optional services, set to true to enable.
+  'RASPI_OP_MODE_ENABLED' => true,
   'RASPI_WIFICLIENT_ENABLED' => true,
   'RASPI_HOTSPOT_ENABLED' => true,
   'RASPI_NETWORK_ENABLED' => true,

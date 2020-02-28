@@ -36,7 +36,7 @@
             </div><!-- /.row -->
             <div class="col-lg-12">
               <div class="row">
-                <a href="#" class="btn btn-outline btn-primary" id="btnSummaryRefresh"><i class="fas fa-sync-alt"></i> <?php echo _("Refresh"); ?></a>
+                <a href="#" class="btn btn-outline-primary" id="btnSummaryRefresh"><i class="fas fa-sync-alt"></i> <?php echo _("Refresh"); ?></a>
               </div><!-- /.row -->
             </div><!-- /.col-lg-12 -->
           </div><!-- /.tab-pane -->
@@ -46,16 +46,15 @@
           <div role="tabpanel" class="tab-pane fade in" id="<?php echo $if_quoted ?>">
             <div class="row">
               <div class="col-lg-6">
-
                 <form id="frm-<?php echo $if_quoted ?>">
                   <?php echo CSRFTokenFieldTag() ?>
                   <div class="form-group">
                     <h4 class="mt-3 mb-3"><?php echo _("Adapter IP Address Settings") ?></h4>
                     <div class="btn-group btn-group-toggle" role="group" data-toggle="buttons">
-                      <label class="btn btn-primary">
+                      <label class="btn btn-outline-primary">
                         <input class="mr-2" type="radio" name="<?php echo $if_quoted ?>-addresstype" id="<?php echo $if_quoted ?>-dhcp" autocomplete="off"><?php echo _("DHCP") ?>
                       </label>
-                      <label class="btn btn-primary">
+                      <label class="btn btn-outline-primary">
                         <input class="mr-2" type="radio" name="<?php echo $if_quoted ?>-addresstype" id="<?php echo $if_quoted ?>-static" autocomplete="off"><?php echo _("Static IP") ?>
                       </label>
                     </div><!-- /.btn-group -->
@@ -91,10 +90,20 @@
                   <div class="form-group">
                     <label for="<?php echo $if_quoted ?>-dnssvralt"><?php echo _("Alternate DNS Server") ?></label>
                     <input type="text" class="form-control" id="<?php echo $if_quoted ?>-dnssvralt" placeholder="0.0.0.0">
-		  </div>
+                    <span class="error" id="<?php echo $if_quoted ?>-dnssvralt-invalid">This field must contain a valid IP address</span>
+		              </div>
                   <?php if (!RASPI_MONITOR_ENABLED): ?>
-                      <a href="#" class="btn btn-primary btn-outline intreset" data-int="<?php echo $if_quoted ?>"><?php echo _("Reset settings") ?></a>
+                      <a href="#" class="btn btn-primary intsave" data-int="<?php echo $if_quoted ?>"><?php echo _("Save settings") ?></a>
 		                  <a href="#" class="btn btn-warning intapply" data-int="<?php echo $if_quoted ?>"><?php echo _("Apply settings") ?></a>
+                      <a href="#" class="btn btn-outline-primary intreset float-right" data-int="<?php echo $if_quoted ?>"><?php echo _("Reset settings") ?></a>
+                      <div style="display: none" class="alert alert-success mt-4" role="alert" id="<?php echo $if_quoted ?>-success-msg">
+                        <button type="button" class="close" id="<?php echo $if_quoted ?>-success-msg-close">&times;</button>
+                        <strong>Configuration saved successfully!</strong>
+                      </div>
+                      <div style="display: none" class="alert alert-danger mt-4" role="alert" id="<?php echo $if_quoted ?>-error-msg">
+                        <button type="button" class="close" id="<?php echo $if_quoted ?>-success-msg-close">&times;</button>
+                        <strong>Ups, something went wrong :(</strong>
+                      </div>
                   <?php endif ?>
                 </form>
 

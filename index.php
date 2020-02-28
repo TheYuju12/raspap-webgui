@@ -40,6 +40,7 @@ require_once 'includes/data_usage.php';
 require_once 'includes/about.php';
 require_once 'includes/openvpn.php';
 require_once 'includes/torproxy.php';
+require_once 'includes/operation_mode.php';
 
 $output = $return = 0;
 $page = $_GET['page'];
@@ -49,6 +50,7 @@ if (!isset($_COOKIE['theme'])) {
 } else {
     $theme = $_COOKIE['theme'];
 }
+
 $theme_url = 'app/css/'.htmlspecialchars($theme, ENT_QUOTES);
 
 if ($_COOKIE['sidebarToggled'] == 'true' ) {
@@ -127,44 +129,49 @@ if ($_COOKIE['sidebarToggled'] == 'true' ) {
         <li class="nav-item">
           <a class="nav-link" href="index.php?page=wlan0_info"><i class="fas fa-tachometer-alt fa-fw mr-2"></i><span class="nav-label"><?php echo _("Dashboard"); ?></span></a>
         </li>
-        <?php if (RASPI_WIFICLIENT_ENABLED) : ?>
+          <?php if (RASPI_OP_MODE_ENABLED) : ?>
         <li class="nav-item">
-          <a class="nav-link" href="index.php?page=wpa_conf"><i class="fas fa-wifi fa-fw mr-2"></i><span class="nav-label"><?php echo _("Configure WiFi client"); ?></span></a>
+          <a class="nav-link" href="index.php?page=op_mode"><i class="fas fa-microchip fa-fw mr-2"></i><span class="nav-label"><?php echo _("Operation mode"); ?></span></a>
         </li>
         <?php endif; ?>
           <?php if (RASPI_HOTSPOT_ENABLED) : ?>
         <li class="nav-item">
-          <a class="nav-link" href="index.php?page=hostapd_conf"><i class="far fa-dot-circle fa-fw mr-2"></i><span class="nav-label"><?php echo _("Configure hotspot"); ?></a>
+          <a class="nav-link" href="index.php?page=hostapd_conf"><i class="fas fa-wifi fa-fw mr-2"></i><span class="nav-label"><?php echo _("Hotspot"); ?></a>
         </li>
           <?php endif; ?>
           <?php if (RASPI_NETWORK_ENABLED) : ?>
         <li class="nav-item">
-           <a class="nav-link" href="index.php?page=network_conf"><i class="fas fa-network-wired fa-fw mr-2"></i><span class="nav-label"><?php echo _("Configure networking"); ?></a>
+           <a class="nav-link" href="index.php?page=network_conf"><i class="fas fa-network-wired fa-fw mr-2"></i><span class="nav-label"><?php echo _("Networking"); ?></a>
         </li> 
           <?php endif; ?>
           <?php if (RASPI_DHCP_ENABLED) : ?>
         <li class="nav-item">
-          <a class="nav-link" href="index.php?page=dhcpd_conf"><i class="fas fa-exchange-alt fa-fw mr-2"></i><span class="nav-label"><?php echo _("Configure DHCP Server"); ?></a>
+          <a class="nav-link" href="index.php?page=dhcpd_conf"><i class="fas fa-server fa-fw mr-2"></i><span class="nav-label"><?php echo _("DHCP Server"); ?></a>
+        </li>
+          <?php endif; ?>
+          <?php if (RASPI_WIFICLIENT_ENABLED) : ?>
+        <li class="nav-item">
+          <a class="nav-link" href="index.php?page=wpa_conf"><i class="fas fa-exchange-alt fa-fw mr-2"></i><span class="nav-label"><?php echo _("WiFi client"); ?></span></a>
         </li>
           <?php endif; ?>
           <?php if (RASPI_OPENVPN_ENABLED) : ?>
         <li class="nav-item">
-          <a class="nav-link" href="index.php?page=openvpn_conf"><i class="fas fa-key fa-fw mr-2"></i><span class="nav-label"><?php echo _("Configure OpenVPN"); ?></a>
+          <a class="nav-link" href="index.php?page=openvpn_conf"><i class="fas fa-key fa-fw mr-2"></i><span class="nav-label"><?php echo _("OpenVPN"); ?></a>
         </li>
           <?php endif; ?>
           <?php if (RASPI_TORPROXY_ENABLED) : ?>
         <li class="nav-item">
-           <a class="nav-link" href="index.php?page=torproxy_conf"><i class="fas fa-eye-slash fa-fw mr-2"></i><span class="nav-label"><?php echo _("Configure TOR proxy"); ?></a>
+           <a class="nav-link" href="index.php?page=torproxy_conf"><i class="fas fa-eye-slash fa-fw mr-2"></i><span class="nav-label"><?php echo _("TOR proxy"); ?></a>
         </li>
           <?php endif; ?>
           <?php if (RASPI_CONFAUTH_ENABLED) : ?>
         <li class="nav-item">
-        <a class="nav-link" href="index.php?page=auth_conf"><i class="fas fa-user-lock fa-fw mr-2"></i><span class="nav-label"><?php echo _("Configure Auth"); ?></a>
+        <a class="nav-link" href="index.php?page=auth_conf"><i class="fas fa-user-lock fa-fw mr-2"></i><span class="nav-label"><?php echo _("Authentication"); ?></a>
         </li>
           <?php endif; ?>
           <?php if (RASPI_CHANGETHEME_ENABLED) : ?>
         <li class="nav-item">
-          <a class="nav-link" href="index.php?page=theme_conf"><i class="fas fa-paint-brush fa-fw mr-2"></i><span class="nav-label"><?php echo _("Change Theme"); ?></a>
+          <a class="nav-link" href="index.php?page=theme_conf"><i class="fas fa-paint-brush fa-fw mr-2"></i><span class="nav-label"><?php echo _("Themes"); ?></a>
         </li>
           <?php endif; ?>
           <?php if (RASPI_VNSTAT_ENABLED) : ?>
@@ -178,7 +185,7 @@ if ($_COOKIE['sidebarToggled'] == 'true' ) {
           </li>
             <?php endif; ?>
          <li class="nav-item">
-          <a class="nav-link" href="index.php?page=about"><i class="fas fa-info-circle fa-fw mr-2"></i><span class="nav-label"><?php echo _("About RaspAP"); ?></a>
+          <a class="nav-link" href="index.php?page=about"><i class="fas fa-info-circle fa-fw mr-2"></i><span class="nav-label"><?php echo _("About DumbAP"); ?></a>
         </li>
         <!-- Divider -->
         <hr class="sidebar-divider d-none d-md-block">
@@ -255,6 +262,9 @@ if ($_COOKIE['sidebarToggled'] == 'true' ) {
         case "about":
             DisplayAbout();
             break;
+        case "op_mode":
+            DisplayOperationModeConfig();
+            break;
         default:
             DisplayDashboard($extraFooterScripts);
         }
@@ -279,7 +289,9 @@ if ($_COOKIE['sidebarToggled'] == 'true' ) {
 
     <!-- jQuery -->
     <script src="dist/jquery/jquery.min.js"></script>
-
+    <!-- jQuery confirm -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.js"></script>
     <!-- Bootstrap Core JavaScript -->
     <script src="dist/bootstrap/js/bootstrap.bundle.min.js"></script>
 

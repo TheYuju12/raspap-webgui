@@ -54,7 +54,7 @@ if [ ${#pkgs_to_install[@]} -ne 0 ]; then
 fi
 
 # Install yaml support for python (using oyaml because it uses ordered dicts)
-pip install oyaml
+pip3 install oyaml
 
 ##########################
 # Configure new packages #

@@ -32,6 +32,7 @@ define('RASPI_LIGHTTPD_CONFIG', '/etc/lighttpd/lighttpd.conf');
 define('RASPI_5GHZ_ISO_ALPHA2', array('US'));
 
 // Optional services, set to true to enable.
+define('RASPI_OP_MODE_ENABLED', true);
 define('RASPI_WIFICLIENT_ENABLED', true);
 define('RASPI_HOTSPOT_ENABLED', true);
 define('RASPI_NETWORK_ENABLED', true);
