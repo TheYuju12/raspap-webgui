@@ -1,5 +1,6 @@
-var adapter_type = "";
-var saved_interfaces = {};
+var network_config; // Storages the running network configuration
+var adapter_type; // If the current displayed interface is wired, wireless, a bridge...
+var saved_interfaces = {}; // Storages changes of the interfaces's configuration made by user while they are in a page
 
 function msgShow(retcode,msg) {
     if(retcode == 0) {
@@ -123,12 +124,25 @@ function setupTabs() {
         }
     });
 }
+/**
+ * Loads the current networking configuration from netplan files so we have a copy of he configuration in memory.
+ */
+function loadNetworkConfig() {
+    if (!network_config) {
+        $.post('ajax/networking/get_int_config.php',function(data) {
+            jsonData = JSON.parse(data);
+            // Cache network configuration
+            network_config = jsonData["output"];
+            console.log(network_config);
+        });
+    }
+}
 
 /**
  * Used by main method loadCurrentSettings to abstract functionality.
  * 
  * @param {*} int The interface whose settings we're loading.
- * @param {*} info Netplan information of a particular interface through an associative array (dict).
+ * @param {*} info Netplan information of a particular interface through an associative array (dictionary).
  * 
  */
 
@@ -160,40 +174,35 @@ function loadInterfaceSettings(int, info) {
 /**
  * Gets information about the given interface and displays it through web UI.
  * @param {*} strInterface The interfaces whose settings we're loading.
- * @param {*} force_post False by default, if set to true previous saved settings in memory (if any) won't be used. Instead, 
- * a POST to PHP backend will always be performed to gather information about the interface.
+ * @param {*} cache True by default, if set to false saved settings in memory (if any) won't be used. Instead, 
+ * the actual running network configuration will be displayed.
  */
-function loadCurrentSettings(strInterface, force_post=false) {
-    hideNetworkingAlerts(strInterface);
-    hideNetworkingErrors(strInterface);
-    if (strInterface.includes("br")) {
+function loadCurrentSettings(int, cache=true) {
+    if (int.includes("br")) {
         adapter_type = "bridges";
     }
-    else if (strInterface.includes("eth")) {
+    else if (int.includes("eth")) {
         adapter_type = "ethernets";
     }
-    else if (strInterface.includes("wlan")) {
+    else if (int.includes("wlan")) {
         adapter_type = "wifis";
     }
-    if (!force_post && strInterface in saved_interfaces) {
+    hideNetworkingAlerts(int);
+    hideNetworkingErrors(int);
+    if (cache && int in saved_interfaces) {
         // Use cached information (previously saved)
-        loadInterfaceSettings(strInterface, saved_interfaces[strInterface]);
+        loadInterfaceSettings(int, saved_interfaces[int]);
+        console.log(saved_interfaces[int]);
     }
     else {
-        // Get the information directly from the configuration file (actually this isn't 100% true, see the php script for more info).
-        $.post('ajax/networking/get_int_config.php',{interface:strInterface},function(data) {
-            jsonData = JSON.parse(data);
-            console.log(jsonData);
-            var int = strInterface;
-            var info = jsonData["output"]["network"][adapter_type][int];
-            loadInterfaceSettings(strInterface, info);
-        });
+        // Use running config first time
+        loadInterfaceSettings(int, network_config["network"][adapter_type][int]);
+        console.log(network_config["network"][adapter_type][int]);
     }
-    
 }
 
 function resetNetworkSettings(strInterface) {
-    loadCurrentSettings(strInterface, true);
+    loadCurrentSettings(strInterface, false);
 }
 
 /**
@@ -281,126 +290,192 @@ function networkSettingsHasErrors(int) {
 }
 
 /**
- * Saves the network settings of an interface. If 'apply' is set to true this function also applies the new configuration using saved settings for all interfaces.
+ * Saves the network settings of an interface.
  * @param {*} strInterface The interface whose setting we're saving.
- * @param {*} apply False by default, when set to true the user will be asked for confirmation to apply the changes.
+ * @param {*} silent Don't display any visual feedback.
  */
 
-function saveNetworkSettings(strInterface, apply=false) {
+function saveNetworkSettings(strInterface, silent=false) {
     hideNetworkingErrors(strInterface);
     hideNetworkingAlerts(strInterface);
-    // Get current configuration as JSON in order to modify it
-    $.post('ajax/networking/get_int_config.php',{interface:strInterface},function(data){
-        var jsonData = JSON.parse(data);
-        if (jsonData["return"]) {
-            console.log("Error executing ajax routine: ajax/networking/get_int_config.php.");
+    var int = strInterface;
+    // use a copy so we can reset settings
+    var info = Object.assign({}, network_config["network"][adapter_type][int]);
+    if ($('#'+int+'-dhcp').prop("checked")) {
+        // If dhcp, we're good to go, just delete static configuration fields (if any) from dict and clear static configuration values from view
+        info["dhcp4"] = true;
+        delete info["addresses"];
+        delete info["gateway4"];
+        delete info["nameservers"];
+        clearInterfaceSettings(int);
+    }
+    else {
+        // If static configuration, we need to check that all required inputs are filled (only dns2 is optional)
+        if (networkSettingsHasErrors(int)) {
             return;
         }
-        jsonData = jsonData["output"];
-        var int = strInterface;
-        var info = jsonData["network"][adapter_type][int];
-        if ($('#'+int+'-dhcp').prop("checked")) {
-            // If dhcp, we're good to go, just delete static configuration fields (if any) from dict and clear static configuration values from view
-            info["dhcp4"] = true;
-            delete info["addresses"];
+        // If everything alright proceed
+        if (info["dhcp4"]) {
+            delete info["dhcp4"];
+        }
+        var ips = []; // Netplan uses an array of ip addresses, but we will only allow the user to establish one
+        ips.push($('#'+int+'-ipaddress').val() + "/" + netmask2netplan($('#'+int+'-netmask').val()));
+        info["addresses"] = ips;
+        // If wlan we don't storage gateway and dns
+        if (strInterface.includes("wlan")) {
             delete info["gateway4"];
             delete info["nameservers"];
-            clearInterfaceSettings(int);
         }
         else {
-            // If static configuration, we need to check that all required inputs are filled (only dns2 is optional)
-            if (networkSettingsHasErrors(int)) {
-                return;
+            info["gateway4"] = $('#'+int+'-gateway').val();
+            var dns_addresses = [];
+            dns_addresses.push($('#'+int+'-dnssvr').val())
+            if ($('#'+int+'-dnssvralt').val()) {
+                dns_addresses.push($('#'+int+'-dnssvralt').val())
             }
-            // If everything alright proceed
-            if (info["dhcp4"]) {
-                delete info["dhcp4"];
+            const nameserver = {
+                addresses: []
             }
-            var ips = []; // Netplan uses an array of ip addresses, but we will only allow the user to establish one
-            ips.push($('#'+int+'-ipaddress').val() + "/" + netmask2netplan($('#'+int+'-netmask').val()));
-            info["addresses"] = ips;
-            // If wlan we don't storage gateway and dns
-            if (strInterface.includes("wlan")) {
-                delete info["gateway4"];
-                delete info["nameservers"];
-            }
-            else {
-                info["gateway4"] = $('#'+int+'-gateway').val();
-                var dns_addresses = [];
-                dns_addresses.push($('#'+int+'-dnssvr').val())
-                if ($('#'+int+'-dnssvralt').val()) {
-                    dns_addresses.push($('#'+int+'-dnssvralt').val())
-                }
-                const nameserver = {
-                    addresses: []
-                }
-                ns = Object.create(nameserver);
-                ns.addresses = dns_addresses;
-                info["nameservers"] = ns;
-            }
+            ns = Object.create(nameserver);
+            ns.addresses = dns_addresses;
+            info["nameservers"] = ns;
         }
-        // Save info apply changes if requested
-        saved_interfaces[int] = info;
-        console.log(jsonData);
-        //Visual feedback
+    }
+    // Save info and apply changes if requested
+    saved_interfaces[int] = info;
+    console.log(info);
+    //Visual feedback
+    if (!silent) {
         $('#'+int+'-success-msg').css("display", "block");
         $('#'+int+'-success-msg-close').click(function (e) {
             $('#'+int+'-success-msg').css("display", "none");
-        }); 
-        if (apply) {
-            applyNetworkSettings(jsonData);
-        }
-    });
+        });
+    }
 }
 
-function applyNetworkSettings(jsonData) {
-    var confirm_msg = "A reboot is needed to apply a new network configuration.";
+function updateRunningConfig() {
+    // Put the pieces together
+    var interfaces = Object.keys(saved_interfaces);
+    $.each(interfaces, function (index, int) {
+        var adapter_type;
+        if (int.includes("wlan")) {
+            adapter_type = "wifis";
+        }
+        else if (int.includes("eth")) {
+            adapter_type = "ethernets";
+        }
+        else if (int.includes("br")) {
+            adapter_type = "bridges";
+        }
+        if (saved_interfaces[int] == false) {
+            // Delete the interface
+            delete network_config["network"][adapter_type][int];
+            // If adapter is empty remove it too
+            if (!Object.keys(network_config["network"][adapter_type]).length) delete network_config["network"][adapter_type];
+        }
+        else {
+            if (!network_config["network"][adapter_type]) network_config["network"][adapter_type] = {};
+            network_config["network"][adapter_type][int] = saved_interfaces[int];
+        }
+        
+    });
+    console.log(network_config);
+}
+
+function applyNetworkSettings() {
+    var confirm_msg = "A reboot is needed for the new configuration to take effect.";
     $.confirm({
         title: 'Apply changes',
         content: confirm_msg,
         type: "orange",
         typeAnimated: true,
+        columnClass: "medium",
         buttons: {
-            confirm: {
-                text: "Continue",
+            reboot_now: {
+                text: "Reboot now",
                 btnClass: "btn-orange",
                 typeAnimated: true,
                 action: function () {
-                    // Put the pieces together
-                    var interfaces = Object.keys(saved_interfaces);
-                    $.each(interfaces, function (index, int) {
-                        if (int.includes("wlan")) {
-                            jsonData["network"]["wifis"][int] = saved_interfaces[int];
-                        }
-                        else if (int.includes("eth")) {
-                            jsonData["network"]["ethernets"][int] = saved_interfaces[int];
-                        }
-                        else {
-                            jsonData["network"]["bridges"][int] = saved_interfaces[int];
-                        }
-                    });
-                    console.log(jsonData);
+                    updateRunningConfig();
                     // Send a POST through Ajax to apply changes with a php script.
                     $.ajax({
                         type:"POST",
                         url: "ajax/networking/save_int_config.php",
-                        data: {new_config: JSON.stringify(jsonData)},
-                    }).done(function (response) {
-                            data = JSON.parse(response);
-                            if (!response["return"]) {
-                                $.alert('Rebooting device...');
-                                $.post("ajax/system/reboot.php", "", function() {
-                                    // System will reboot
-                                });
-                            }
-                            else {
-                                $.alert({
-                                    text: 'Ups, something were wrong. Network configuration was not updated.',
-                                    type: "red",
-                                    typeAnimated: true
-                                });
-                            }
-                        });
+                        data: {new_config: JSON.stringify(network_config)},
+                    })
+                    .done(function (response) {
+                        data = JSON.parse(response);
+                        if (!response["return"]) {
+                            $.alert({
+                                title: 'Rebooting device...',
+                                content: false,
+                                typeAnimated: true,
+                                icon: 'fa fa-spinner fa-spin',
+                                buttons: {
+                                    ok: {
+                                        isHidden: true
+                                    }
+                                }
+                            });
+                            $.post("ajax/system/reboot.php", "", function() {
+                                // System will reboot
+                            });
+                        }
+                        else {
+                            $.alert({
+                                title: 'Ups, something were wrong.',
+                                content: "Network configuration could not be updated.",
+                                type: "red",
+                                typeAnimated: true,
+                                buttons: {
+                                    ok: {
+                                        text: "Ok",
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            },
+            reboot_later: {
+                text: "Reboot later",
+                action: function () {
+                    updateRunningConfig();
+                    // Send a POST through Ajax to apply changes with a php script.
+                    $.ajax({
+                        type:"POST",
+                        url: "ajax/networking/save_int_config.php",
+                        data: {new_config: JSON.stringify(network_config)},
+                    })
+                    .done(function (response) {
+                        //Mejor con alertas de bootstrap
+                        data = JSON.parse(response);
+                        if (!response["return"]) {
+                            $.alert({
+                                title: "Configuration updated!",
+                                content: "Don't forget to reboot for it to take effect.",
+                                type: "green",
+                                buttons: {
+                                    ok: {
+                                        text: "Ok",
+                                    }
+                                }
+                            });
+                        }
+                        else {
+                            $.alert({
+                                title: 'Ups, something were wrong.',
+                                content: "Network configuration could not be updated.",
+                                type: "red",
+                                typeAnimated: true,
+                                buttons: {
+                                    ok: {
+                                        text: "Ok",
+                                    }
+                                }
+                            });
+                        }
+                    });
                 }
             },
             cancel: {
@@ -408,6 +483,80 @@ function applyNetworkSettings(jsonData) {
             }
         }
     }); 
+}
+
+/**
+ * Changes the current operating mode of the AP. Prevents the user from changing the current mode to the same by returning false (e.g, 
+ * if current mode is bridge and bridged interface is eth0, and user hits "save" while bridge is selected with eth0, this method performs 
+ * no action and returns false). Otherwise returns true.
+ */
+function changeOperatingMode() {
+    //TODO cachear los cambios en lugar de aplicarlos directamente
+    var op_mode = $("#op_mode-select").val();
+    var bridge_name = "dumbap-br";
+    var network = network_config["network"];
+    if (op_mode == "bridge") {
+        var int = $("#bridge-interface-select").val();
+        if (!network["bridges"] || !network["bridges"][bridge_name] || !int in network["bridges"][bridge_name]) {
+            var adapter_type; // We can't use globar var here because this view is independent from the networking one
+            if (int.includes("br")) {
+                adapter_type = "bridges";
+            }
+            else if (int.includes("eth")) {
+                adapter_type = "ethernets";
+            }
+            else if (int.includes("wlan")) {
+                adapter_type = "wifis";
+            }
+            // Copy configuration of selected interface
+            var int_config = Object.assign({}, network_config["network"][adapter_type][int]);
+            // Add the interface to the array of interfaces
+            int_config["interfaces"] = [];
+            int_config["interfaces"].push(int);
+            // Delete entries for wlan0 and the selected interface to add to bridge
+            //delete network[adapter_type][int];
+            //delete network["wifis"]["wlan0"];
+            // Add simple entry for the added-to-bridge interface and hostapd wireless interface
+            saved_interfaces[int] = {"dhcp4" : false};
+            var wireless = {
+                "dhcp4" : false, 
+                "access-points" : {"dumbap" : {"password" : ""}}
+            }
+            saved_interfaces["wlan0"] = wireless;
+            // Add interface to bridge (same as previous config of selected interface)
+            saved_interfaces[bridge_name] = int_config;
+            // Add simple entry for the selected interface
+            //network[adapter_type][int] = {"dhcp4" : false};
+            // If there were no bridges add bridges entry
+            //if (!network["bridges"]) network["bridges"] = {};
+            // Add interface to bridge (same as previous config of selected interface)
+            //network["bridges"][bridge_name] = int_config;
+            return true;
+        }
+        else {
+            // Tell the user that we did not perform any action
+            return false;
+        }
+    }
+    else {
+        if (network["bridges"] && network["bridges"]["dumbap-br"]) {
+            // Restore default configuration (just like brand new installation)
+            var wireless = {
+                "dhcp4" : false, 
+                "addresses" : ["10.9.9.1/24"],
+                "access-points" : {"dumbap" : {"password" : ""}}
+            };
+            var bridged_int = network["bridges"]["dumbap-br"]["interfaces"][0];
+            saved_interfaces[bridged_int] = {"dhcp4" : true};
+            saved_interfaces["wlan0"] = wireless;
+            saved_interfaces["dumbap-br"] = false;
+            return true;
+        }
+        else {
+            // Tell the user that we did not perform any action
+            return false;
+        }
+    }
 }
 
 $(document).on("click", ".js-add-dhcp-static-lease", function(e) {
@@ -473,7 +622,10 @@ function setupBtns() {
     });
     $('.intapply').click(function() {
         var int = $(this).data('int');
-        saveNetworkSettings(int, true);
+        if (int) {
+            saveNetworkSettings(int, true);
+        }
+        applyNetworkSettings();
     });
 }
 
@@ -484,23 +636,48 @@ function setCSRFTokenHeader(event, xhr, settings) {
     }
 }
 
+function setupNetworkingPage() {
+    loadNetworkConfig();
+    getAllInterfaces();
+    setupTabs();
+    setupBtns();
+}
+
+function setupOperatingModePage() {
+    loadNetworkConfig();
+    $("#op_mode-apply").click(function () {
+        if (changeOperatingMode()) {
+            // Apply changes
+            applyNetworkSettings();
+        }
+        else {
+            // Do not perform any further action and inform the user
+            $.alert({
+                title: 'No action was performed.',
+                type: "orange",
+                content: "New operating mode does not differ from the current one, so no changes were made.",
+                typeAnimated: true,
+            });
+        }
+    });
+}
+
 function contentLoaded() {
     pageCurrent = window.location.href.split("?")[1].split("=")[1];
     pageCurrent = pageCurrent.replace("#","");
     var mode = $("#op_mode-select").val();
-    //if (!mode) mode = "dhcp";
-    $("#op_mode-description").text(op_mode_descriptions[mode]);
-    if (pageCurrent == "network_conf") {
-        getAllInterfaces();
-        setupTabs();
-        setupBtns();
-    }
-    else {
-        // We will only maintain saved interface settings while we are in networking page
-        saved_interfaces = [];
-        if (pageCurrent == "hostapd_conf") {
+    $("#op_mode-description").html(op_mode_descriptions[mode]);
+    switch (pageCurrent) {
+        case "network_conf":
+            setupNetworkingPage();
+        case "op_mode":
+            setupOperatingModePage();
+            break;
+        case "hostapd_conf":
             loadChannel();
-        }
+            break;
+        default:
+            break;
     }
 }
 
@@ -609,9 +786,15 @@ $(function() {
     $('#theme-select').change(function() {
         var theme = themes[$( "#theme-select" ).val() ]; 
         set_theme(theme);
-   });
+    });
    $('#op_mode-select').change(function() {
-        var op_mode = $("#op_mode-select").val(); 
+        var op_mode = $("#op_mode-select").val();
+        if (op_mode == "bridge") {
+            $("#bridge-options").css("display", "block");
+        }
+        else {
+            $("#bridge-options").css("display", "none");
+        }
         $("#op_mode-description").html(op_mode_descriptions[op_mode]);
     });
 });
@@ -644,9 +827,9 @@ var themes = {
 
 var op_mode_descriptions = {
     "dhcp" : "A DHCP server powered by dnsmasq will be launched along with the AP.",
-    "bridge" : "A shared connection between your wireless interface used as hotspot and your interface connected to the Internet will be established. \
-                <strong>No DHCP server will be deployed</strong>. Instead, the AP will use the DHCP server of the connected interface added to the bridge. \
-                This mode allows you to set up a pure access point (also known as <strong>Dumb AP</strong>)."
+    "bridge" : "A shared connection between a wireless interface (used as hotspot) and an interface connected to the Internet will be established. \
+                <strong>No DHCP server will be deployed</strong>. Instead, the access point will use the DHCP server of the interface connected to the \
+                Internet added to the bridge. This mode allows you to set up a pure access point (also known as <strong>dumb AP</strong>)."
 }
 
 // Toggles the sidebar navigation.

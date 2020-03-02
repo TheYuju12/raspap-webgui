@@ -98,10 +98,10 @@
                       <a href="#" class="btn btn-outline-primary intreset float-right" data-int="<?php echo $if_quoted ?>"><?php echo _("Reset settings") ?></a>
                       <div style="display: none" class="alert alert-success mt-4" role="alert" id="<?php echo $if_quoted ?>-success-msg">
                         <button type="button" class="close" id="<?php echo $if_quoted ?>-success-msg-close">&times;</button>
-                        <strong>Configuration saved successfully!</strong>
+                        Configuration saved! Remember to <strong>apply</strong> the changes before leaving.
                       </div>
                       <div style="display: none" class="alert alert-danger mt-4" role="alert" id="<?php echo $if_quoted ?>-error-msg">
-                        <button type="button" class="close" id="<?php echo $if_quoted ?>-success-msg-close">&times;</button>
+                        <button type="button" class="close" id="<?php echo $if_quoted ?>-error-msg-close">&times;</button>
                         <strong>Ups, something went wrong :(</strong>
                       </div>
                   <?php endif ?>

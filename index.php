@@ -131,7 +131,7 @@ if ($_COOKIE['sidebarToggled'] == 'true' ) {
         </li>
           <?php if (RASPI_OP_MODE_ENABLED) : ?>
         <li class="nav-item">
-          <a class="nav-link" href="index.php?page=op_mode"><i class="fas fa-microchip fa-fw mr-2"></i><span class="nav-label"><?php echo _("Operation mode"); ?></span></a>
+          <a class="nav-link" href="index.php?page=op_mode"><i class="fas fa-microchip fa-fw mr-2"></i><span class="nav-label"><?php echo _("Operating mode"); ?></span></a>
         </li>
         <?php endif; ?>
           <?php if (RASPI_HOTSPOT_ENABLED) : ?>
