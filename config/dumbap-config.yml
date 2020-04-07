@@ -1,0 +1,5 @@
+hotspot: wlan0
+mode: 
+  dhcp:
+    address: 10.9.9.1
+    mask: 255.255.255.0

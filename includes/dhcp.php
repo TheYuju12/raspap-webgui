@@ -10,6 +10,7 @@ function DisplayDHCPConfig()
 {
 
     $status = new StatusMessages();
+    /*
     if (!RASPI_MONITOR_ENABLED) {
         if (isset($_POST['savedhcpdsettings'])) {
             $errors = '';
@@ -80,7 +81,7 @@ function DisplayDHCPConfig()
             }
         }
     }
-
+    */
     exec('pidof dnsmasq | wc -l', $dnsmasq);
     $dnsmasq_state = ($dnsmasq[0] > 0);
 

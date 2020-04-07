@@ -1,17 +1,15 @@
 <?php
 
-define("CONFIG_NETWORK_FILENAME", "network-config");
-define('NETPLAN_CONFIG_DIR', "/etc/netplan/");
-define('NETPLAN_CONFIG_FILE', NETPLAN_CONFIG_DIR . CONFIG_NETWORK_FILENAME . ".yaml");
-
 define('RASPI_VERSION', '1.0');
 define('RASPI_CONFIG', '/etc/raspap');
+define('DUMBAP_CONFIG_FILE', RASPI_CONFIG.'/dumbap-config.yml');
 define('RASPI_CONFIG_NETWORKING', RASPI_CONFIG.'/networking');
 define('RASPI_ADMIN_DETAILS', RASPI_CONFIG.'/raspap.auth');
 define('RASPI_WIFI_CLIENT_INTERFACE', 'wlan0');
 define('RASPI_CACHE_PATH', sys_get_temp_dir() . '/raspap');
-
 define("RASPI_SCRIPTS", RASPI_CONFIG . "/scripts");
+
+define('RASPI_NETPLAN_CONFIG', "/etc/netplan/network-config.yaml");
 
 // Constants for configuration file paths.
 // These are typical for default RPi installs. Modify if needed.
@@ -32,15 +30,36 @@ define('RASPI_LIGHTTPD_CONFIG', '/etc/lighttpd/lighttpd.conf');
 define('RASPI_5GHZ_ISO_ALPHA2', array('US'));
 
 // Optional services, set to true to enable.
+
+$services = [
+    'RASPI_OP_MODE_ENABLED' => true,
+    'RASPI_WIFICLIENT_ENABLED' => false,
+    'RASPI_HOTSPOT_ENABLED' => true,
+    'RASPI_NETWORK_ENABLED' => true,
+    'RASPI_DHCP_ENABLED' => true,
+    'RASPI_OPENVPN_ENABLED' => false,
+    'RASPI_TORPROXY_ENABLED' => false,
+    'RASPI_CONFAUTH_ENABLED' => true,
+    'RASPI_CHANGETHEME_ENABLED' => false,
+    'RASPI_VNSTAT_ENABLED' => true,
+    'RASPI_SYSTEM_ENABLED' => true,
+    'RASPI_MONITOR_ENABLED' => true,
+];
+
+function get_services() {
+    global $services;
+    return $services;
+}
+
 define('RASPI_OP_MODE_ENABLED', true);
-define('RASPI_WIFICLIENT_ENABLED', true);
+define('RASPI_WIFICLIENT_ENABLED', false);
 define('RASPI_HOTSPOT_ENABLED', true);
 define('RASPI_NETWORK_ENABLED', true);
 define('RASPI_DHCP_ENABLED', true);
 define('RASPI_OPENVPN_ENABLED', false);
 define('RASPI_TORPROXY_ENABLED', false);
 define('RASPI_CONFAUTH_ENABLED', true);
-define('RASPI_CHANGETHEME_ENABLED', true);
+define('RASPI_CHANGETHEME_ENABLED', false);
 define('RASPI_VNSTAT_ENABLED', true);
 define('RASPI_SYSTEM_ENABLED', true);
 define('RASPI_MONITOR_ENABLED', false);
@@ -48,3 +67,4 @@ define('RASPI_MONITOR_ENABLED', false);
 // Locale settings
 define('LOCALE_ROOT', 'locale');
 define('LOCALE_DOMAIN', 'messages');
+

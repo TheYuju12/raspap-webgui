@@ -3,6 +3,7 @@
 require_once 'includes/status_messages.php';
 require_once 'app/lib/system.php';
 require_once 'config.php';
+require_once 'functions.php';
 
 /**
  *
@@ -12,41 +13,49 @@ function DisplayHostAPDConfig()
 {
     $status = new StatusMessages();
     $system = new System();
-    $arrHostapdConf = parse_ini_file('/etc/raspap/hostapd.ini');
+    $arrHostapdConf = parse_ini_file(RASPI_HOSTAPD_CONFIG);
     $arrConfig = array();
     $arr80211Standard = [
-        'a' => '802.11a - 5 GHz',
         'b' => '802.11b - 2.4 GHz',
         'g' => '802.11g - 2.4 GHz',
         'n' => '802.11n - 2.4 GHz',
         'ac' => '802.11.ac - 5 GHz'
     ];
-    $arrSecurity = array(1 => 'WPA', 2 => 'WPA2', 3 => 'WPA+WPA2', 'none' => _("None"));
-    $arrEncType = array('TKIP' => 'TKIP', 'CCMP' => 'CCMP', 'TKIP CCMP' => 'TKIP+CCMP');
-    $managedModeEnabled = false;
-    exec("ip -o link show | awk -F': ' '{print $2}'", $interfaces);
 
-    if (!RASPI_MONITOR_ENABLED) {
-        if (isset($_POST['SaveHostAPDSettings'])) {
-            SaveHostAPDConfig($arrSecurity, $arrEncType, $arr80211Standard, $interfaces, $status);
-        } elseif (isset($_POST['StartHotspot'])) {
-            $status->addMessage('Attempting to start hotspot', 'info');
-            if ($arrHostapdConf['WifiAPEnable'] == 1) {
-                exec('sudo /etc/raspap/hostapd/servicestart.sh --interface uap0 --seconds 3', $return);
-            } else {
-                exec('sudo /etc/raspap/hostapd/servicestart.sh --seconds 5', $return);
-            }
-            foreach ($return as $line) {
-                $status->addMessage($line, 'info');
-            }
-        } elseif (isset($_POST['StopHotspot'])) {
-            $status->addMessage('Attempting to stop hotspot', 'info');
-            exec('sudo /bin/systemctl stop hostapd.service', $return);
-            foreach ($return as $line) {
-                $status->addMessage($line, 'info');
-            }
+    // Manage security
+
+    $arrSecurity = array(_('None'), 'WPA-PSK', 'WPA-EAP', 'WPA2-PSK', 'WPA2-EAP');
+
+    $arrWpa = array(0 => _('None'), 1 => 'WPA', 2 => 'WPA2');
+    $arrKey = array('WPA-PSK' => 'PSK', 'WPA-EAP' => 'EAP');
+
+    $auth_als = $arrHostapdConf["auth_algs"];
+    $wpa = $arrHostapdConf["wpa"];
+    $key = $arrHostapdConf["wpa_key_mgmt"];
+
+    if ($wpa > 0) {
+        if ($key == "WPA-EAP") {
+            //$eap = $arrHostapdConf["ieee8021x"]; // Remember to insert this when writing the file if EAP selected
+            //$own_ip = $arrHostapdConf["own_ip_addr"]; // Remember to insert this when writing the file if EAP selected
+            $arrConfig["radius_auth_addr"] = $arrHostapdConf["auth_server_addr"];
+            $arrConfig["radius_auth_port"] = $arrHostapdConf["auth_server_port"];
+            $arrConfig["radius_auth_secret"] = $arrHostapdConf["auth_server_shared_secret"];
+            $arrConfig["radius_acc_addr"] = $arrHostapdConf["acct_server_addr"];
+            $arrConfig["radius_acc_port"] = $arrHostapdConf["acct_server_port"];
+            $arrConfig["radius_acc_secret"] = $arrHostapdConf["acct_server_shared_secret"];
+            $arrConfig["nas_id"] = $arrHostapdConf["nas_identifier"];
         }
+        $arrConfig["security"] = $arrWpa[$wpa] . "-" . $arrKey[$key];
     }
+    else {
+        $arrConfig["security"] = $arrWpa[$wpa];
+    }
+    
+    $arrEncType = array('TKIP' => 'TKIP', 'CCMP' => 'CCMP', 'TKIP CCMP' => 'TKIP+CCMP');
+
+    // Pass data to arrConfig
+
+    $managedModeEnabled = false;
 
     exec('cat '. RASPI_HOSTAPD_CONFIG, $hostapdconfig);
     exec('iwgetid '. RASPI_WIFI_CLIENT_INTERFACE. ' -r', $wifiNetworkID);
@@ -73,17 +82,17 @@ function DisplayHostAPDConfig()
             "serviceStatus",
             "hostapdstatus",
             "managedModeEnabled",
-            "interfaces",
             "arrConfig",
             "arr80211Standard",
             "selectedHwMode",
-            "arrSecurity",
+            "arrWpa",
             "arrEncType",
-            "arrHostapdConf"
+            "arrHostapdConf",
+            "arrSecurity"
         )
     );
 }
-
+/*
 function SaveHostAPDConfig($wpa_array, $enc_types, $modes, $interfaces, $status)
 {
     // It should not be possible to send bad data for these fields so clearly
@@ -141,7 +150,7 @@ function SaveHostAPDConfig($wpa_array, $enc_types, $modes, $interfaces, $status)
     $cfg['LogEnable'] = $logEnable;
     $cfg['WifiAPEnable'] = $wifiAPEnable;
     $cfg['WifiManaged'] = RASPI_WIFI_CLIENT_INTERFACE;
-    write_php_ini($cfg, '/etc/raspap/hostapd.ini');
+    write_php_ini($cfg, HOST);
 
     // Verify input
     if (empty($_POST['ssid']) || strlen($_POST['ssid']) > 32) {
@@ -318,3 +327,4 @@ function SaveHostAPDConfig($wpa_array, $enc_types, $modes, $interfaces, $status)
 
     return true;
 }
+*/

@@ -22,7 +22,7 @@ require 'includes/csrf.php';
 ensureCSRFSessionToken();
 
 require_once 'includes/config.php';
-require_once 'includes/defaults.php';
+#require_once 'includes/defaults.php';
 require_once RASPI_CONFIG.'/raspap.php';
 require_once 'includes/locale.php';
 require_once 'includes/functions.php';
@@ -56,6 +56,25 @@ $theme_url = 'app/css/'.htmlspecialchars($theme, ENT_QUOTES);
 if ($_COOKIE['sidebarToggled'] == 'true' ) {
     $toggleState = "toggled";
 }
+
+$services = get_services();
+
+$dumbap_config = yaml_parse_file(DUMBAP_CONFIG_FILE);
+$op_mode = $dumbap_config["mode"];
+if (array_key_exists("dhcp", $op_mode)) {
+  $services["RASPI_SDN_ENABLED"] = false;
+}
+else if (array_key_exists("sdn", $op_mode)) {
+  $services["RASPI_DHCP_ENABLED"] = false;
+  $services["RASPI_NETWORK_ENABLED"] = false;
+  $services["RASPI_HOTSPOT_ENABLED"] = false;
+}
+else {
+  // Bridge
+  $services["RASPI_SDN_ENABLED"] = false;
+  $services["RASPI_DHCP_ENABLED"] = false;
+}
+
 
 ?><!DOCTYPE html>
 <html lang="en">
@@ -129,57 +148,57 @@ if ($_COOKIE['sidebarToggled'] == 'true' ) {
         <li class="nav-item">
           <a class="nav-link" href="index.php?page=wlan0_info"><i class="fas fa-tachometer-alt fa-fw mr-2"></i><span class="nav-label"><?php echo _("Dashboard"); ?></span></a>
         </li>
-          <?php if (RASPI_OP_MODE_ENABLED) : ?>
+          <?php if ($services["RASPI_OP_MODE_ENABLED"]) : ?>
         <li class="nav-item">
-          <a class="nav-link" href="index.php?page=op_mode"><i class="fas fa-microchip fa-fw mr-2"></i><span class="nav-label"><?php echo _("Operating mode"); ?></span></a>
+          <a class="nav-link" href="index.php?page=op_mode"><i class="fas fa-microchip fa-fw mr-2"></i><span class="nav-label"><?php echo _("Operation mode"); ?></span></a>
         </li>
         <?php endif; ?>
-          <?php if (RASPI_HOTSPOT_ENABLED) : ?>
+          <?php if ($services["RASPI_HOTSPOT_ENABLED"]) : ?>
         <li class="nav-item">
           <a class="nav-link" href="index.php?page=hostapd_conf"><i class="fas fa-wifi fa-fw mr-2"></i><span class="nav-label"><?php echo _("Hotspot"); ?></a>
         </li>
           <?php endif; ?>
-          <?php if (RASPI_NETWORK_ENABLED) : ?>
+          <?php if ($services["RASPI_NETWORK_ENABLED"]) : ?>
         <li class="nav-item">
            <a class="nav-link" href="index.php?page=network_conf"><i class="fas fa-network-wired fa-fw mr-2"></i><span class="nav-label"><?php echo _("Networking"); ?></a>
         </li> 
           <?php endif; ?>
-          <?php if (RASPI_DHCP_ENABLED) : ?>
+          <?php if ($services["RASPI_DHCP_ENABLED"]) : ?>
         <li class="nav-item">
           <a class="nav-link" href="index.php?page=dhcpd_conf"><i class="fas fa-server fa-fw mr-2"></i><span class="nav-label"><?php echo _("DHCP Server"); ?></a>
         </li>
           <?php endif; ?>
-          <?php if (RASPI_WIFICLIENT_ENABLED) : ?>
+          <?php if ($services["RASPI_WIFICLIENT_ENABLED"]) : ?>
         <li class="nav-item">
           <a class="nav-link" href="index.php?page=wpa_conf"><i class="fas fa-exchange-alt fa-fw mr-2"></i><span class="nav-label"><?php echo _("WiFi client"); ?></span></a>
         </li>
           <?php endif; ?>
-          <?php if (RASPI_OPENVPN_ENABLED) : ?>
+          <?php if ($services["RASPI_OPENVPN_ENABLED"]) : ?>
         <li class="nav-item">
           <a class="nav-link" href="index.php?page=openvpn_conf"><i class="fas fa-key fa-fw mr-2"></i><span class="nav-label"><?php echo _("OpenVPN"); ?></a>
         </li>
           <?php endif; ?>
-          <?php if (RASPI_TORPROXY_ENABLED) : ?>
+          <?php if ($services["RASPI_TORPROXY_ENABLED"]) : ?>
         <li class="nav-item">
            <a class="nav-link" href="index.php?page=torproxy_conf"><i class="fas fa-eye-slash fa-fw mr-2"></i><span class="nav-label"><?php echo _("TOR proxy"); ?></a>
         </li>
           <?php endif; ?>
-          <?php if (RASPI_CONFAUTH_ENABLED) : ?>
+          <?php if ($services["RASPI_CONFAUTH_ENABLED"]) : ?>
         <li class="nav-item">
         <a class="nav-link" href="index.php?page=auth_conf"><i class="fas fa-user-lock fa-fw mr-2"></i><span class="nav-label"><?php echo _("Authentication"); ?></a>
         </li>
           <?php endif; ?>
-          <?php if (RASPI_CHANGETHEME_ENABLED) : ?>
+          <?php if ($services["RASPI_CHANGETHEME_ENABLED"]) : ?>
         <li class="nav-item">
           <a class="nav-link" href="index.php?page=theme_conf"><i class="fas fa-paint-brush fa-fw mr-2"></i><span class="nav-label"><?php echo _("Themes"); ?></a>
         </li>
           <?php endif; ?>
-          <?php if (RASPI_VNSTAT_ENABLED) : ?>
+          <?php if ($services["RASPI_VNSTAT_ENABLED"]) : ?>
         <li class="nav-item">
           <a class="nav-link" href="index.php?page=data_use"><i class="fas fa-chart-bar fa-fw mr-2"></i><span class="nav-label"><?php echo _("Data usage"); ?></a>
         </li>
           <?php endif; ?>
-            <?php if (RASPI_SYSTEM_ENABLED) : ?>
+            <?php if ($services["RASPI_SYSTEM_ENABLED"]) : ?>
           <li class="nav-item">
           <a class="nav-link" href="index.php?page=system_info"><i class="fas fa-cube fa-fw mr-2"></i><span class="nav-label"><?php echo _("System"); ?></a>
           </li>
@@ -308,11 +327,10 @@ if ($_COOKIE['sidebarToggled'] == 'true' ) {
     <script src="dist/sb-admin-2/js/sb-admin-2.js"></script>
 
     <!-- Custom RaspAP JS -->
-    <script src="app/js/custom.js"></script>
+    <script type="module" src="app/js/custom.js"></script>
 
     <?php if ($page == "wlan0_info" || !isset($page)) { ?>
     <!-- Link Quality Chart -->
-    <script src="app/js/linkquality.js"></script>
     <?php }
 
     // Load non default JS/ECMAScript in footer.

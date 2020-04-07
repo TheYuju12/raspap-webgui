@@ -1,0 +1,14 @@
+hotspot: 
+  interface: wlan0
+# mode (dhcp, bridge or sdn)
+mode: 
+  dhcp:
+    address: 10.9.9.1
+    mask: 255.255.255.0
+#mode:
+#  bridge:
+#    name: "dumbap-br"
+#    gw: eth0 # Interface to be added to the bridge which will provide internet output
+#mode:
+#  sdn:
+#    manager: "0.0.0.0"

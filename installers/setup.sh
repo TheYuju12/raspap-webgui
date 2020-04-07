@@ -27,6 +27,7 @@ apt update
 # so when the uninstaller is ran it will be able to only remove the packages that were installed by this script.
 
 needed_pkgs=(netplan.io hostapd git lighttpd php7.1-cgi python3 python3-pip vnstat dnsmasq)
+needed_pkgs=(netplan.io hostapd git lighttpd php7.1-cgi php-xml php7.1-xml php7.1-dev php-pear libyaml-dev vnstat dnsmasq)
 declare -a pkgs_to_install
 
 for i in "${needed_pkgs[@]}"
@@ -53,8 +54,10 @@ if [ ${#pkgs_to_install[@]} -ne 0 ]; then
     done
 fi
 
-# Install yaml support for python (using oyaml because it uses ordered dicts)
-pip3 install oyaml
+# Install and enable yaml module for php
+printf "\n" | pecl install yaml
+echo "extension=yaml.so" > /etc/php/7.1/mods-available/yaml.ini
+phpenmod yaml
 
 ##########################
 # Configure new packages #
@@ -117,7 +120,11 @@ systemctl enable dumbap.service
 
 # Set needed permissions in sudoers file
 echo "www-data ALL=(ALL) NOPASSWD:/sbin/reboot" > /etc/sudoers.d/dumbap
-echo "www-data ALL=(ALL) NOPASSWD:/etc/raspap/scripts/update_network_config.sh" >> /etc/sudoers.d/dumbap
+echo "www-data ALL=(ALL) NOPASSWD:/usr/sbin/netplan" >> /etc/sudoers.d/dumbap
+echo "www-data ALL=(ALL) NOPASSWD:/usr/sbin/service hostapd stop" >> /etc/sudoers.d/dumbap
+echo "www-data ALL=(ALL) NOPASSWD:/usr/sbin/service hostapd restart" >> /etc/sudoers.d/dumbap
+echo "www-data ALL=(ALL) NOPASSWD:/usr/sbin/service dnsmasq stop" >> /etc/sudoers.d/dumbap
+echo "www-data ALL=(ALL) NOPASSWD:/usr/sbin/service dnsmasq restart" >> /etc/sudoers.d/dumbap
 echo "www-data ALL=(ALL) NOPASSWD:/etc/raspap/scripts/do_arp.sh" >> /etc/sudoers.d/dumbap
 
 # Configure network to use netplan
@@ -132,20 +139,14 @@ if [ ! -d "/etc/hostapd" ]; then
 fi
 mv /var/www/html/config/hostapd.conf /etc/hostapd/
 mv /var/www/html/config/network-config.yaml /etc/netplan/
+mv /etc/dnsmasq.conf > /etc/dnsmasq.conf.bak
+mv /var/www/html/config/dnsmasq.conf /etc/
 # Since networkd seems to be dumb and does not use dhcp-provided dns, we'll use google dns
 dns="8.8.8.8"
-# Set this dns as the default one in resolvconf.conf
 echo "name_servers=$dns" >> /etc/resolvconf.conf
-# Setup dnsmasq and forwarding
-echo "[INFO] Finishing installation"
 
-# dnsmasq
-dhcp_min="10.9.9.10"
-dhcp_max="10.9.9.110"
-dhcp_netmask="255.255.255.0"
-dhcp_lease_time="12h"
-echo "dhcp-range=$dhcp_min,$dhcp_max,$dhcp_netmask,$dhcp_lease_time" > /etc/dnsmasq.conf
-# forwarding
+echo "[INFO] Finishing installation"
+# Setup forwarding
 sed -i "s/#net.ipv4.ip_forward=1.*/net.ipv4.ip_forward=1/g" /etc/sysctl.conf
 iptables -t nat -A  POSTROUTING -o eth0 -j MASQUERADE
 # persist iptables rules 
@@ -160,7 +161,9 @@ echo "exit 0" >> /etc/rc.local
 # Apply netplan changes and reboot #
 ####################################
 
-echo "[INFO] Rebooting..." 
 # netplan is gonna throw an error but it will work so we just redirect error output to /dev/null 
 netplan apply 2> /dev/null
+# ip address (wlan)
+ip="10.9.9.1"
+echo "[INFO] Rebooting to $ip (through wireless interface)..." 
 reboot

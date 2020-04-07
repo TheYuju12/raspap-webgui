@@ -20,7 +20,7 @@
         <div class="tab-content">
 
           <div role="tabpanel" class="tab-pane active" id="summary">
-            <h4 class="mt-3"><?php echo _("Current settings") ?></h4>
+            <h4 class="my-3"><?php echo _("Current settings") ?></h4>
             <div class="row">
               <?php foreach ($all_interfaces as $if): ?>
               <?php $if_quoted = htmlspecialchars($if, ENT_QUOTES) ?>
@@ -50,7 +50,7 @@
                   <?php echo CSRFTokenFieldTag() ?>
                   <div class="form-group">
                     <h4 class="mt-3 mb-3"><?php echo _("Adapter IP Address Settings") ?></h4>
-                    <div class="btn-group btn-group-toggle" role="group" data-toggle="buttons">
+                    <div id="<?php echo $if_quoted ?>-mode-toggle" class="btn-group btn-group-toggle" role="group" data-toggle="buttons">
                       <label class="btn btn-outline-primary">
                         <input class="mr-2" type="radio" name="<?php echo $if_quoted ?>-addresstype" id="<?php echo $if_quoted ?>-dhcp" autocomplete="off"><?php echo _("DHCP") ?>
                       </label>
@@ -82,28 +82,19 @@
                     <span class="error" id="<?php echo $if_quoted ?>-gateway-invalid">This field must contain a valid IP address</span>
                   </div>
                   <div class="form-group">
-                    <label for="<?php echo $if_quoted ?>-dnssvr"><?php echo _("DNS Server") ?></label>
+                    <label for="<?php echo $if_quoted ?>-dnssvr"><?php echo _("Primary DNS") ?></label>
                     <input type="text" class="form-control" id="<?php echo $if_quoted ?>-dnssvr" placeholder="0.0.0.0">
                     <span class="error" id="<?php echo $if_quoted ?>-dnssvr-empty">This field cannot be empty</span>
                     <span class="error" id="<?php echo $if_quoted ?>-dnssvr-invalid">This field must contain a valid IP address</span>
                   </div>
                   <div class="form-group">
-                    <label for="<?php echo $if_quoted ?>-dnssvralt"><?php echo _("Alternate DNS Server") ?></label>
+                    <label for="<?php echo $if_quoted ?>-dnssvralt"><?php echo _("Secondary DNS"); echo _(" (optional)") ?></label>
                     <input type="text" class="form-control" id="<?php echo $if_quoted ?>-dnssvralt" placeholder="0.0.0.0">
                     <span class="error" id="<?php echo $if_quoted ?>-dnssvralt-invalid">This field must contain a valid IP address</span>
 		              </div>
                   <?php if (!RASPI_MONITOR_ENABLED): ?>
-                      <a href="#" class="btn btn-primary intsave" data-int="<?php echo $if_quoted ?>"><?php echo _("Save settings") ?></a>
-		                  <a href="#" class="btn btn-warning intapply" data-int="<?php echo $if_quoted ?>"><?php echo _("Apply settings") ?></a>
-                      <a href="#" class="btn btn-outline-primary intreset float-right" data-int="<?php echo $if_quoted ?>"><?php echo _("Reset settings") ?></a>
-                      <div style="display: none" class="alert alert-success mt-4" role="alert" id="<?php echo $if_quoted ?>-success-msg">
-                        <button type="button" class="close" id="<?php echo $if_quoted ?>-success-msg-close">&times;</button>
-                        Configuration saved! Remember to <strong>apply</strong> the changes before leaving.
-                      </div>
-                      <div style="display: none" class="alert alert-danger mt-4" role="alert" id="<?php echo $if_quoted ?>-error-msg">
-                        <button type="button" class="close" id="<?php echo $if_quoted ?>-error-msg-close">&times;</button>
-                        <strong>Ups, something went wrong :(</strong>
-                      </div>
+		                  <a href="#" class="btn btn-primary intapply" data-int="<?php echo $if_quoted ?>"><?php echo _("Apply settings") ?></a>
+                      <a href="#" class="btn btn-warning intreset" data-int="<?php echo $if_quoted ?>"><?php echo _("Discard changes") ?></a>
                   <?php endif ?>
                 </form>
 

@@ -14,10 +14,6 @@ echo ""
 echo "[INFO] Removing software..."
 sleep 2
 
-# Uninstall python packages used
-
-pip3 uninstall oyaml
-
 # Purge the installed packages one by one
 
 input="/etc/raspap/uninstaller/pkgs_to_uninstall"

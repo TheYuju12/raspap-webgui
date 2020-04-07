@@ -33,7 +33,7 @@ class System {
   }
 
   public function processorCount() {
-    $procs = shell_exec("nproc --all");
+    $proc = shell_exec("nproc --all");
     return intval($proc);
   }
 
@@ -53,7 +53,7 @@ class System {
 
   public function hostapdStatus() {
     exec('pidof hostapd | wc -l', $status);
-	return $status;
+	  return $status;
   }
 
 }

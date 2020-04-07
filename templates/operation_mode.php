@@ -4,7 +4,7 @@
       <div class="card-header">
         <div class="row">
           <div class="col">
-            <i class="fas fa-microchip mr-2"></i><?php echo _("Operating mode"); ?>
+            <i class="fas fa-microchip mr-2"></i><?php echo _("Operation mode"); ?>
           </div>
         </div><!-- /.row -->
       </div><!-- /.card-header -->
@@ -12,19 +12,25 @@
         <h4><?php echo _("AP mode"); ?></h4>
         <div class="row mt-3">
           <div class="form-group col-md-6">
-            <label for="code"><?php echo _("Select the behaviour of the access point:"); ?></label>
+            <label for="code"><?php echo _("Behaviour of the access point"); ?></label>
             <?php SelectorOptions("op_mode", $modes, $selectedMode, "op_mode-select") ?>
           </div>
         </div>
         <div class="row mt-2">
           <div class="form-group col-md-6">
-            <div class="alert alert-warning mx-1" role="alert" id="op_mode-description">
+            <div class="alert alert-warning" role="alert" id="op_mode-description">
             </div>
           </div>
         </div>
-        <div class="row" id="bridge-options" <?php if ($selectedMode != "bridge") echo _("style='display:none'");?>>
+        <div class="row" id="hotspot-options">
           <div class="form-group col-md-6">
-            <label for="code"><?php echo _("Add an interface with Internet connection to the bridge:"); ?></label>
+            <label for="code"><?php echo _("Hotspot interface"); ?></label>
+            <?php SelectorOptions("hotspot", $wireless_ints, $hotspot, "hotspot-select") ?>
+          </div>
+        </div>
+        <div class="row" id="bridge-options" <?php if ($selectedMode != "bridge") echo ("style='display:none'");?>>
+          <div class="form-group col-md-6">
+            <label for="code"><?php echo _("Bridged interface (it should be connected to the Internet)"); ?></label>
             <?php SelectorOptions("bridge_interface", $interfacesAvailableToBridge, null, "bridge-interface-select") ?>
           </div>
         </div>
